@@ -132,7 +132,16 @@ namespace jspl
 
     res<node> parser::objective()
     {
-        return term();
+        using enum token_type;
+
+        auto rtn = term();
+
+        if (auto res = take(eof); !res)
+        {
+            return err{res.error()};
+        }
+
+        return rtn;
     }
 
     res<node> parser::constraint()
