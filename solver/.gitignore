@@ -2,3 +2,4 @@
 **/**.bak
 
 build
+wasm/solver.d.ts

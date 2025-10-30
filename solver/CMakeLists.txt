@@ -8,10 +8,15 @@ project(jspl-solver LANGUAGES CXX VERSION 1.0.0)
 file(GLOB src "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${src})
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "index" EXECUTABLE_SUFFIX ".html")
-
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_23)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23 CXX_EXTENSIONS OFF CXX_STANDARD_REQUIRED ON)
+
+# --------------------------------------------------------------------------------------------------------
+# Setup Emscripten
+# --------------------------------------------------------------------------------------------------------
+
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "solver")
+target_link_options(${PROJECT_NAME} PRIVATE "SHELL:--emit-tsd \"${CMAKE_CURRENT_SOURCE_DIR}/ts/solver.d.ts\"")
 
 # --------------------------------------------------------------------------------------------------------
 # Setup Includes
@@ -31,5 +36,5 @@ CPMFindPackage(
   GIT_REPOSITORY "https://github.com/Z3Prover/z3"
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC libz3 embind)
+target_link_libraries(${PROJECT_NAME} PRIVATE libz3 embind)
 target_include_directories(libz3 INTERFACE $<BUILD_INTERFACE:${z3_SOURCE_DIR}/src/api/c++>)
