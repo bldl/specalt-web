@@ -1,140 +1,9 @@
 import type { ValidationAcceptor, ValidationChecks } from "langium";
-import type { JSPLFormatServices } from "./jspl-format-module";
 
-import {
-    AndExpression,
-    Concern,
-    Condition,
-    Group,
-    type JSPLAstType,
-    LaboratoryInformation,
-    Model,
-    Negation,
-    OrExpression,
-    Proposition,
-    PropositionalExpression,
-    Referenceable,
-    Statement,
-} from "./generated/ast";
+import { type JSPLFormatServices } from "./jspl-format-module";
+import { extractReferenceables, getAllUsedConcerns, getAllUsedReferenceables } from "./utils";
+import { Condition, type JSPLAstType, LaboratoryInformation, Model, Proposition, Statement } from "./generated/ast";
 
-const extractReferenceables = {
-    from: function(expression: PropositionalExpression)
-    {
-        const output = new Set<Referenceable>();
-        extractReferenceables.fromExpression(expression, output);
-        return output;
-    },
-    fromExpression: function(expression: PropositionalExpression, output: Set<Referenceable>)
-    {
-        if (expression === undefined)
-        {
-            return;
-        }
-
-        switch (expression.$type)
-        {
-            case "OrExpression":
-                extractReferenceables.fromOrExpression(expression as OrExpression, output);
-                break;
-            case "AndExpression":
-                extractReferenceables.fromAndExpression(expression as AndExpression, output);
-                break;
-            case "Negation":
-                extractReferenceables.fromNegation(expression as Negation, output);
-                break;
-            case "Group":
-                extractReferenceables.fromGroup(expression as Group, output);
-                break;
-            case "Statement":
-                extractReferenceables.fromStatement(expression as Statement, output);
-                break;
-        }
-    },
-    fromOrExpression: function(expression: OrExpression, output: Set<Referenceable>)
-    {
-        extractReferenceables.fromExpression(expression.left, output);
-        extractReferenceables.fromExpression(expression.right, output);
-    },
-    fromAndExpression: function(expression: AndExpression, output: Set<Referenceable>)
-    {
-        extractReferenceables.fromExpression(expression.left, output);
-        extractReferenceables.fromExpression(expression.right, output);
-    },
-    fromNegation: function(expression: Negation, output: Set<Referenceable>)
-    {
-        extractReferenceables.fromExpression(expression.inner, output);
-    },
-    fromGroup: function(expression: Group, output: Set<Referenceable>)
-    {
-        extractReferenceables.fromExpression(expression.inner, output);
-    },
-    fromStatement: function(statement: Statement, output: Set<Referenceable>)
-    {
-        const { ref } = statement.reference;
-
-        if (ref === undefined)
-        {
-            return;
-        }
-
-        output.add(ref);
-    },
-};
-
-export function getAllUsedConcerns(model: Model)
-{
-    const result = new Set<Concern>();
-
-    for (const proposition of model.propositions)
-    {
-        for (const clause of proposition.valueClauses)
-        {
-            // TODO: Can concern be undefined?
-            clause.raises.map(x => x.concern?.ref)
-                .filter(x => x !== undefined)
-                .forEach(result.add);
-        }
-    }
-
-    return result;
-}
-
-export function getAllUsedReferenceables(model: Model)
-{
-    const result = new Set<Referenceable>();
-
-    for (const prop of model.propositions)
-    {
-        for (const clause of prop.valueClauses)
-        {
-            for (const concern of clause.raises)
-            {
-                if (!concern.condition)
-                {
-                    continue;
-                }
-
-                extractReferenceables.from(concern.condition.expression).forEach(result.add);
-            }
-        }
-
-        if (!prop.disable)
-        {
-            continue;
-        }
-
-        for (const stmt of prop.disable.statements)
-        {
-            extractReferenceables.from(stmt.condition.expression).forEach(result.add);
-        }
-    }
-
-    return result;
-}
-
-/**
- * Register custom validation checks.
- */
 export function registerValidationChecks({ validation }: JSPLFormatServices)
 {
     const { ValidationRegistry: registry, JSPLFormatValidator: validator } = validation;
@@ -272,7 +141,7 @@ export class JSPLFormatValidator
             });
         }
 
-        if (defaults.length !== 1)
+        if (defaults.length === 1)
         {
             return;
         }
@@ -332,23 +201,23 @@ export class JSPLFormatValidator
         if (statement.reference === undefined) return;
         if (statement.reference.ref === undefined) return;
 
-        // Extract referenced referenceable
         const referenceable = statement.reference.ref;
         const value = statement.value;
 
-        if (referenceable.$type === "Condition")
+        if (referenceable.$type === "Condition" && typeof value !== "boolean")
         {
-            if (typeof value === "boolean") return;
-            accept("error", "Stated value is not a valid value of the referenced object.", {
+            return accept("error", "Stated value is not a valid value of the referenced object.", {
                 node: statement,
                 property: "value",
             });
+        } else if (referenceable.$type === "Condition")
+        {
             return;
         }
 
         const proposition = referenceable as Proposition;
 
-        if (!proposition.valueClauses || !proposition.valueClauses.some(x => x.value === value))
+        if (!proposition.valueClauses || proposition.valueClauses.some(x => x.value === value))
         {
             return;
         }
