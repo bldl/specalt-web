@@ -1,12 +1,10 @@
-import { Diagnostic } from "vscode-languageserver";
 import { AstNode, EmptyFileSystem, LangiumDocument, LangiumServices, URI } from "langium";
 
 import { type Model } from "./language/generated/ast";
 import { createJSPLFormatServices } from "./language/jspl-format-module";
 
-import { err, ok, Result } from "neverthrow";
-
-type Res<T> = Result<T, Diagnostic[]>;
+import { Res } from "./utils";
+import { err, ok } from "neverthrow";
 
 export async function extractDocument(
     content: string,

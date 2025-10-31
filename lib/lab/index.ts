@@ -2,6 +2,7 @@ import { Concern, Model } from "../language/generated/ast";
 
 import { AstNode, buildAst } from "./ast";
 import { extractModel } from "../model";
+import { Res } from "../utils";
 
 export type Value = string | boolean;
 
@@ -86,14 +87,8 @@ export function createLab({ laboratory, concerns, propositions, conditions }: Mo
     };
 }
 
-export async function parseLab(input: string)
+export async function parseLab(input: string): Promise<Res<Laboratory>>
 {
     const model = await extractModel(input);
-
-    if (model.isErr())
-    {
-        throw model.error;
-    }
-
-    return createLab(model.value);
+    return model.map(createLab);
 }

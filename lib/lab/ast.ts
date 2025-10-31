@@ -66,13 +66,7 @@ export const buildAst: LogicalExpressionExtractor<AstNode> = {
     },
     fromStatement: function(expression: StatementExpression)
     {
-        const reference = expression.reference.ref;
-
-        if (!reference)
-        {
-            throw "oh no!";
-        }
-
+        const reference = expression.reference.ref!;
         const op = expression.negation ? "neq" : "eq";
 
         switch (reference.$type)
