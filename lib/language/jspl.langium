@@ -1,4 +1,4 @@
-grammar JavaScriptPropositionalLaboratoryFormat
+grammar JSPLFormat
 
 entry Model:
     ( // Optional Header

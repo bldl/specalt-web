@@ -1,0 +1,12 @@
+{
+  "projectName": "JSPL",
+  "languages": [{
+    "id": "jspl",
+    "textMate": {
+      "out": "../syntaxes/jspl-format.tmLanguage.json"
+    },
+    "fileExtensions": [".jspl"],
+    "grammar": "../lib/language/jspl.langium"
+  }],
+  "out": "../lib/language/generated"
+}

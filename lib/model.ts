@@ -1,8 +1,8 @@
 import { Diagnostic } from "vscode-languageserver";
 import { AstNode, EmptyFileSystem, LangiumDocument, LangiumServices, URI } from "langium";
 
-import type { Model } from "../src/language/generated/ast";
-import { createJavaScriptPropositionalLaboratoryFormatServices as createJSPLFormatServices } from "../src/language/java-script-propositional-laboratory-format-module";
+import { type Model } from "./language/generated/ast";
+import { createJSPLFormatServices } from "./language/jspl-format-module";
 
 import { err, ok, Result } from "neverthrow";
 
@@ -32,6 +32,6 @@ export async function extractAstNode<T extends AstNode>(fileName: string, servic
 
 export function extractModel(input: string): Promise<Res<Model>>
 {
-    const services = createJSPLFormatServices(EmptyFileSystem).JavaScriptPropositionalLaboratoryFormat;
+    const services = createJSPLFormatServices(EmptyFileSystem).JSPLFormat;
     return extractAstNode<Model>(input, services);
 }
