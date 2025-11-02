@@ -7,11 +7,11 @@ import { Res } from "./utils";
 import { err, ok } from "neverthrow";
 
 export async function extractDocument(
-    content: string,
+    input: string,
     services: LangiumServices,
 ): Promise<Res<LangiumDocument<AstNode>>>
 {
-    const document = services.shared.workspace.LangiumDocumentFactory.fromString(content, URI.file("tmp.jspl"));
+    const document = services.shared.workspace.LangiumDocumentFactory.fromString(input, URI.file("tmp.jspl"));
     await services.shared.workspace.DocumentBuilder.build([document], { validation: true });
     const validationErrors = (document.diagnostics ?? []).filter(e => e.severity === 1);
 
@@ -23,13 +23,26 @@ export async function extractDocument(
     return ok(document);
 }
 
-export async function extractAstNode<T extends AstNode>(fileName: string, services: LangiumServices): Promise<Res<T>>
+export async function extractAstNode<T extends AstNode>(input: string, services: LangiumServices): Promise<Res<T>>
 {
-    return (await extractDocument(fileName, services)).andThen(doc => ok(doc.parseResult?.value as T));
+    const document = await extractDocument(input, services);
+
+    if (document.isErr())
+    {
+        return err(document.error);
+    }
+
+    const { parseResult } = document.value;
+
+    if (!parseResult)
+    {
+        return err([]);
+    }
+
+    return ok(parseResult.value as T);
 }
 
 export function extractModel(input: string): Promise<Res<Model>>
 {
-    const services = createJSPLFormatServices(EmptyFileSystem).JSPLFormat;
-    return extractAstNode<Model>(input, services);
+    return extractAstNode<Model>(input, createJSPLFormatServices(EmptyFileSystem).JSPLFormat);
 }

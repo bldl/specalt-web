@@ -1,3 +1,4 @@
+import { Value } from ".";
 import {
     AndExpression,
     Group as GroupExpression,
@@ -10,61 +11,72 @@ import { LogicalExpressionExtractor } from "../language/utils";
 
 export interface Binary
 {
+    $type: "binary";
     left: AstNode;
     right: AstNode;
-    op: "or" | "and";
+    op: "or" | "and" | "eq" | "neq";
 }
 
 export interface Lookup
 {
-    left: string;
-    $left: "condition" | "proposition";
-    right: string | boolean;
-    op: "eq" | "neq";
+    $type: "lookup";
+    what: string;
+    type: "condition" | "proposition";
 }
 
 export interface Unary
 {
+    $type: "unary";
     value: AstNode;
     op: "not";
 }
 
 export interface Group
 {
+    $type: "group";
     inner: AstNode;
 }
 
-export type AstNode = Binary | Unary | Group | Lookup;
+export interface Literal
+{
+    $type: "literal";
+    value: Value;
+}
+
+export type AstNode = Binary | Unary | Group | Lookup | Literal;
 
 export const buildAst: LogicalExpressionExtractor<AstNode> = {
-    fromOrExpression: function(expression: OrExpression)
+    fromOrExpression: (expression: OrExpression) =>
     {
         return {
             left: buildAst.fromExpression(expression.left),
             right: buildAst.fromExpression(expression.right),
             op: "or",
+            $type: "binary",
         };
     },
-    fromAndExpression: function(expression: AndExpression)
+    fromAndExpression: (expression: AndExpression) =>
     {
         return {
             left: buildAst.fromExpression(expression.left),
             right: buildAst.fromExpression(expression.right),
             op: "and",
+            $type: "binary",
         };
     },
-    fromNegation: function(expression: NegationExpression)
+    fromNegation: (expression: NegationExpression) =>
     {
         return {
             value: buildAst.fromExpression(expression.inner),
             op: "not",
+            $type: "unary",
         };
     },
-    fromGroup: function(expression: GroupExpression)
+    fromGroup: (expression: GroupExpression) =>
     {
-        return { inner: buildAst.fromExpression(expression.inner) };
+        return { inner: buildAst.fromExpression(expression.inner), $type: "group" };
     },
-    fromStatement: function(expression: StatementExpression)
+    fromStatement: (expression: StatementExpression) =>
     {
         const reference = expression.reference.ref!;
         const op = expression.negation ? "neq" : "eq";
@@ -74,20 +86,28 @@ export const buildAst: LogicalExpressionExtractor<AstNode> = {
             case "Condition":
                 return {
                     op,
-                    left: reference.name,
-                    $left: "condition",
-                    right: expression.value,
+                    left: {
+                        $type: "lookup",
+                        what: reference.name,
+                        type: "condition",
+                    },
+                    right: { $type: "literal", value: expression.value },
+                    $type: "binary",
                 };
             case "Proposition":
                 return {
                     op,
-                    left: reference.name,
-                    $left: "proposition",
-                    right: expression.value,
+                    left: {
+                        $type: "lookup",
+                        what: reference.name,
+                        type: "proposition",
+                    },
+                    right: { $type: "literal", value: expression.value },
+                    $type: "binary",
                 };
         }
     },
-    fromExpression: function(expression: PropositionalExpression)
+    fromExpression: (expression: PropositionalExpression) =>
     {
         switch (expression.$type)
         {

@@ -21,7 +21,7 @@ export interface Condition
 export interface TweakableConcern
 {
     value: Value;
-    raises: { name?: string; expression?: AstNode }[];
+    raises: { name: string; expression?: AstNode }[];
 }
 
 export interface Tweakable
@@ -30,6 +30,7 @@ export interface Tweakable
     expression: string;
     output: Value[];
     default: Value;
+    disable?: AstNode[];
     concerns: TweakableConcern[];
 }
 
@@ -59,8 +60,8 @@ export function createLab({ laboratory, concerns, propositions, conditions }: Mo
         concerns,
         givens: propositions.filter(x => x.valueClauses.length === 1).map(x =>
         {
-            const val = x.valueClauses[0];
-            return { expression: x.expression, value: `${val}` };
+            const { value } = x.valueClauses[0];
+            return { expression: x.expression, value };
         }),
         tweakables: propositions.filter(x => x.valueClauses.length !== 1).map(x =>
         {
@@ -72,12 +73,15 @@ export function createLab({ laboratory, concerns, propositions, conditions }: Mo
                 concerns: x.valueClauses.map(i => ({
                     value: i.value,
                     raises: i.raises.map(r => ({
-                        name: r.concern.ref?.name,
+                        name: r.concern.ref!.name,
                         expression: r.condition?.expression
                             ? buildAst.fromExpression(r.condition.expression)
                             : undefined,
                     })),
                 })),
+                disable: x.disable
+                    ? x.disable.statements.map(stmt => buildAst.fromExpression(stmt.condition.expression))
+                    : undefined,
             };
         }),
         conditions: conditions.map(cond => ({
