@@ -11,7 +11,7 @@ export async function extractDocument(
     services: LangiumServices,
 ): Promise<Res<LangiumDocument<AstNode>>>
 {
-    const document = services.shared.workspace.LangiumDocumentFactory.fromString(input, URI.file("tmp.jspl"));
+    const document = services.shared.workspace.LangiumDocumentFactory.fromString(input, URI.file("/tmp/input.jspl"));
     await services.shared.workspace.DocumentBuilder.build([document], { validation: true });
     const validationErrors = (document.diagnostics ?? []).filter(e => e.severity === 1);
 
