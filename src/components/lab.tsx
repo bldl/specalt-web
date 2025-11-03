@@ -53,7 +53,7 @@ export function Item({ item, notify, ...props }: ItemProps)
     return (
         <Card withBorder {...props}>
             <Stack>
-                <Group justify="space-between">
+                <Group wrap="nowrap" justify="space-between">
                     <Code>
                         {expression}
                     </Code>
@@ -123,7 +123,7 @@ export function Lab({ laboratory, ...props }: LabProps)
     return (
         <Stack align="center" {...props}>
             {title && <Title>{title}</Title>}
-            {authors?.map(author => <Badge h={rem(50)} key={author}>{author}</Badge>)}
+            {authors?.map(author => <Badge mih={rem(25)} key={author}>{author}</Badge>)}
             {description && <Markdown>{description}</Markdown>}
             <ScrollArea w="100%">
                 <Stack align="center" key={ver}>

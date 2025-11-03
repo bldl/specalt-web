@@ -15,13 +15,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <MantineProvider theme={{ primaryColor: "violet", defaultRadius: "md" }} forceColorScheme="dark">
         <AppShell padding="md" header={{ height: 60 }}>
             <AppShell.Header>
-                <Group justify="space-between" h="100%" px="md">
+                <Group wrap="nowrap" justify="space-between" h="100%" px="md">
                     <Group wrap="nowrap" gap="xs">
                         <IconTestPipe2 />
                         <Text fw="bolder">
                             SpecAlt
                         </Text>
-                        <Text c="dimmed" fs="italic">
+                        <Text c="dimmed" fs="italic" visibleFrom="md">
                             - The JavaScript Proposal Laboratory
                         </Text>
                     </Group>
