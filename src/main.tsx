@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./style/index.css";
 import "@mantine/core/styles.css";
 
-import { IconBrandGithub, IconTestPipe2 } from "@tabler/icons-react";
+import { IconBrandGithub, IconTestPipe } from "@tabler/icons-react";
 import { ActionIcon, AppShell, Group, MantineProvider, Text } from "@mantine/core";
 
 import Editor from "./pages/editor.tsx";
@@ -17,7 +17,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <AppShell.Header>
                 <Group wrap="nowrap" justify="space-between" h="100%" px="md">
                     <Group wrap="nowrap" gap="xs">
-                        <IconTestPipe2 />
+                        <IconTestPipe />
                         <Text fw="bolder">
                             SpecAlt
                         </Text>
