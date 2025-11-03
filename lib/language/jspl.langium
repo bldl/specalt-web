@@ -14,28 +14,19 @@ entry Model:
 // Terminals
 
 terminal BOOLEAN returns boolean: /True|False|true|false/;
-terminal ML_STRING_FORMAT returns string: /MD|HTML/;
 terminal ID: /[_a-zA-Z][\w_]*/;
-//terminal INT returns number: /[0-9]+/;
-//terminal CODE_STRING: /`(\\.|[^`\\])*`/;
 terminal STRING: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
 
 hidden terminal WS: /\s+/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 
-FormattedString:
-    (format=ML_STRING_FORMAT)? contents=STRING
-;
-
-
 LaboratoryInformation:
     "laboratory" "{" 
         ( // allow only one field to be used multiple times via validators
             ("title" titles+=STRING)
-            | ("description" descriptions+=FormattedString)
+            | ("description" descriptions+=STRING)
             | ("icon" icons+=STRING)
-            | ("format" formats+=ML_STRING_FORMAT)
             | ("author" authors+=STRING)
             | ("version" versions+=STRING)
         )*
@@ -46,7 +37,7 @@ LaboratoryInformation:
 Concern:
     "issue" name=ID "{"
         "summary" summary=STRING
-        "description" description=FormattedString
+        "description" description=STRING
     "}"
 ;
 
@@ -100,7 +91,6 @@ DisableClause:
 Proposition:
     "tweakable" name=ID "{"
         "expression" expression=STRING
-        //"default" valueDescription+=ValueDescription // how can I get this value to also show up in the list of ALL value descriptions?
         (valueClauses+=ValueClause)+
         (disable=DisableClause)?
     "}"

@@ -179,10 +179,6 @@ export class JSPLFormatValidator
         {
             accept("error", "Multiple icons for one laboratory are not allowed.", { node: information });
         }
-        if (information.formats.length > 1)
-        {
-            accept("error", "Multiple default formats for one laboratory are not allowed.", { node: information });
-        }
         if (information.authors.length > 1)
         {
             accept("error", "Multiple authors for one laboratory are not allowed.", { node: information });

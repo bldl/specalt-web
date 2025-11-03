@@ -1,0 +1,17 @@
+import { CstNode, DefaultValueConverter } from "langium";
+
+export class JSPLValueConverter extends DefaultValueConverter
+{
+    convert(input: string, cstNode: CstNode)
+    {
+        const rtn = super.convert(input, cstNode);
+
+        // Trim (multiline) strings to ensure proper Markdown formatting
+        if (typeof rtn === "string")
+        {
+            return rtn.split("\n").map(item => item.trim()).join("\n");
+        }
+
+        return rtn;
+    }
+}

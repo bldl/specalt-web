@@ -11,6 +11,7 @@ import {
 
 import { JSPLFormatGeneratedModule, JSPLGeneratedSharedModule } from "./generated/module";
 import { JSPLFormatValidator, registerValidationChecks } from "./jspl-validator";
+import { JSPLValueConverter } from "./jspl-converter";
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -40,6 +41,9 @@ export const JSPLFormatModule: Module<
 > = {
     validation: {
         JSPLFormatValidator: () => new JSPLFormatValidator(),
+    },
+    parser: {
+        ValueConverter: () => new JSPLValueConverter(),
     },
 };
 
