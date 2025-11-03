@@ -1,9 +1,8 @@
 laboratory {
 	title "Records and Tuples Laboratory 🔬"
-	description MD "🏗 Work in progress - [raise technical issue](https://github.com/acutmore/record-tuple-laboratory/issues/new)"
+	description "🏗 Work in progress - [raise technical issue](https://github.com/acutmore/record-tuple-laboratory/issues/new)"
 	icon "./res/favicon.svg"
 	author "Ashley Claymore"
-	format HTML
 	version "2"
 }
 
@@ -11,24 +10,21 @@ issue withoutBox {
     summary 
         "complexity moved to ecosystem"
     description 
-		"<p>Without a 'Box' like type there will not be any direct support in the language for storing objects in Records and Tuples.</p>
-		Instead using <a href=\"https://github.com/tc39/proposal-symbols-as-weakmap-keys\">symbols-as-weakmap-keys</a>,
+		"
+        Without a 'Box' like type there will not be any direct support in the language for storing objects in Records and Tuples.
+        Instead using [symbols-as-weakmap-keys](https://github.com/tc39/proposal-symbols-as-weakmap-keys),
 		symbols in Record and Tuples could still refer to objects/functions via a WeakMap.
 		Code will need to ensure the necessary code has access to these WeakMap side tables.
 		APIs conventions will need to be established to distinguish when symbols are being used in this way.
 		Care will need to be taken with the WeakMaps, if a Map is used by accident there is a risk of memory leaks.
 		Unless direct access to the WeakMap is hidden behind a wrapper, other code could remove/replace the referenced
-		object.
-		<p>
-			Box use-cases include:
-			<ul>
-				<li>Composite keys for Maps/Sets.</li>
-				<li>
-					In React.js creating and passing groups of values, possibly functions,
-					around without triggering re-renders due to changing object identity
-				</li>
-			</ul>
-		</p>"
+		object.  
+
+		Box use-cases include:
+		* Composite keys for Maps/Sets.
+		* In React.js creating and passing groups of values, possibly functions,
+		  around without triggering re-renders due to changing object identity
+		"
 }
 
 issue typeofPowerfulObjectIsNotObject {
@@ -80,8 +76,8 @@ issue objectWrappers {
 	summary
 		"object wrappers"
 	description
-		"<p>If Records and Tuples are not objects then a <pre>ToObject</pre> operation will return an object wrapper
-		which will have its own unique identity: <pre>Object(#[]) !== Object(#[])</pre></p>."
+		"If Records and Tuples are not objects then a `ToObject` operation will return an object wrapper
+		which will have its own unique identity: `Object(#[]) !== Object(#[])`."
 }
 
 issue objectWrapperInConsistency {
