@@ -9,7 +9,7 @@ export class JSPLValueConverter extends DefaultValueConverter
         // Trim (multiline) strings to ensure proper Markdown formatting
         if (typeof rtn === "string")
         {
-            return rtn.split("\n").map(item => item.trim()).join("\n");
+            return rtn.split("\n").map(item => item.trimStart()).join("\n");
         }
 
         return rtn;
