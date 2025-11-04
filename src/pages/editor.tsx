@@ -2,7 +2,10 @@ import * as vscode from "vscode";
 import * as monaco from "@codingame/monaco-vscode-editor-api";
 
 import { useState } from "react";
+import { fromThrowable } from "neverthrow";
+
 import { Group } from "@mantine/core";
+import { useDebouncedCallback } from "@mantine/hooks";
 import { MonacoEditorReactComp } from "@typefox/monaco-editor-react";
 
 import { vscodeConfig } from "../utils/monaco";
@@ -13,9 +16,20 @@ import { Laboratory, parseLaboratory } from "../parser";
 
 import exampleCode from "../../examples/in/records_and_tuples.jspl?raw";
 
+const setLocalStorage = fromThrowable((key: string, value: string) => localStorage.setItem(key, value), e => e);
+
 export default function({ languageConfig }: { languageConfig: LanguageClientConfig })
 {
     const [current, setCurrent] = useState<Laboratory | undefined>();
+
+    const save = useDebouncedCallback(setLocalStorage, 1000);
+    const lastDraft = localStorage.getItem("draft") ?? exampleCode;
+
+    const change = async (input: string) =>
+    {
+        save("draft", input);
+        parseLaboratory(input).then(result => result.andTee(setCurrent));
+    };
 
     return (
         <Group wrap="nowrap" className="main">
@@ -25,13 +39,12 @@ export default function({ languageConfig }: { languageConfig: LanguageClientConf
                 className="editor"
                 onVscodeApiInitDone={() =>
                 {
-                    const onChange = async (input: string) => (await parseLaboratory(input)).andTee(setCurrent);
-                    onChange(exampleCode);
-                    vscode.workspace.onDidChangeTextDocument(async ({ document }) => onChange(document.getText()));
+                    change(lastDraft);
+                    vscode.workspace.onDidChangeTextDocument(async ({ document }) => change(document.getText()));
                 }}
                 onEditorStartDone={app =>
                 {
-                    app?.getEditor()?.setModel(monaco.editor.createModel(exampleCode, "jspl"));
+                    app?.getEditor()?.setModel(monaco.editor.createModel(lastDraft, "jspl"));
                 }}
             />
             <Lab
