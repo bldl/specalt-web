@@ -20,6 +20,8 @@ namespace spa
         minus,
         literal,
         constant,
+        lparen,
+        rparen,
     };
 
     struct token

@@ -26,10 +26,10 @@ namespace spa
         {
             using enum token_type;
 
-        case minus:
-            return left.value() - right.value();
         case plus:
             return left.value() + right.value();
+        case minus:
+            return left.value() - right.value();
         case lt:
             return left.value() < right.value();
         case gt:
@@ -48,6 +48,10 @@ namespace spa
         case literal:
             [[fallthrough]];
         case constant:
+            [[fallthrough]];
+        case lparen:
+            [[fallthrough]];
+        case rparen:
             std::unreachable();
         }
     }
@@ -82,7 +86,8 @@ namespace spa
             return err{std::format("No variable '{}'", node.name)};
         }
 
-        return z3::ite(var->second, m_context->int_val(1), m_context->int_val(0));
+        return var->second;
+        // return z3::ite(var->second, m_context->int_val(1), m_context->int_val(0));
     }
 
     res<z3::expr> emitter::emit(constant &node)

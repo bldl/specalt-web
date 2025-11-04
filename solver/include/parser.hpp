@@ -52,7 +52,6 @@ namespace spa
 
       private:
         [[nodiscard]] res<node> primary();
-        [[nodiscard]] res<node> unary();
 
       private:
         [[nodiscard]] res<node> expr();

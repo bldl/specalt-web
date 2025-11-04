@@ -1,8 +1,8 @@
 #include "emitter.hpp"
 
+#include <map>
 #include <vector>
 #include <string>
-#include <ranges>
 
 #include <emscripten/bind.h>
 

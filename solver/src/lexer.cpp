@@ -83,10 +83,14 @@ namespace spa
         {
             using enum token_type;
 
-        case '-':
-            return token{.type = minus, .value = consume(1)};
         case '+':
             return token{.type = plus, .value = consume(1)};
+        case '-':
+            return token{.type = minus, .value = consume(1)};
+        case '(':
+            return token{.type = lparen, .value = consume(1)};
+        case ')':
+            return token{.type = rparen, .value = consume(1)};
         case '>': {
             const auto len = 1 + (peek(1) == '=');
             return token{.type = len == 2 ? geq : gt, .value = consume(len)};

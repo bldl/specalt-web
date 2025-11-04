@@ -76,31 +76,31 @@ namespace spa
         return err{"Expected primary"};
     }
 
-    res<node> parser::unary()
+    res<node> parser::expr() // NOLINT(*-recursion)
     {
-        auto op = take(token_type::minus);
+        using enum token_type;
 
-        if (!op)
+        if (auto op = take(minus); op)
         {
-            return err{op.error()};
+            return expr().transform([op](node &&fac) { return std::make_unique<spa::unary>(op->type, std::move(fac)); });
         }
 
-        auto prim = primary();
-
-        if (!prim)
+        if (!take(lparen))
         {
-            return prim;
+            return primary();
         }
 
-        return std::make_unique<spa::unary>(op->type, std::move(prim.value()));
+        auto rtn = term();
+
+        if (auto closing = take(rparen); !closing)
+        {
+            return err{closing.error()};
+        }
+
+        return rtn;
     }
 
-    res<node> parser::expr()
-    {
-        return unary().or_else(bind_ignore(&parser::primary, this));
-    }
-
-    res<node> parser::term()
+    res<node> parser::term() // NOLINT(*-recursion)
     {
         using enum token_type;
 

@@ -11,6 +11,9 @@ namespace spa
     // easily swap out z3 with scip in the future if desired (scip does not work well with wasm though).
     // Furthermore, we have the added benefit of allowing more complicated expressions later on.
 
+    // NOTE: The z3 optimizer does not like multiplications on boolean constants.
+    //       This should be implemented with multiple constraints instead.
+
     struct emitter
     {
         using variables = std::unordered_map<std::string_view, z3::expr>;
