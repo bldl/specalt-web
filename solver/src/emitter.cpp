@@ -86,8 +86,7 @@ namespace spa
             return err{std::format("No variable '{}'", node.name)};
         }
 
-        return var->second;
-        // return z3::ite(var->second, m_context->int_val(1), m_context->int_val(0));
+        return z3::ite(var->second, m_context->int_val(1), m_context->int_val(0));
     }
 
     res<z3::expr> emitter::emit(constant &node)
