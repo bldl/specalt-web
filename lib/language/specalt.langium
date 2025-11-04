@@ -1,4 +1,4 @@
-grammar JSPLFormat
+grammar SpecAltFormat
 
 entry Model:
     ( // Optional Header

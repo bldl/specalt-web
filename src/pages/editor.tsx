@@ -14,7 +14,7 @@ import { LanguageClientConfig } from "monaco-languageclient/lcwrapper";
 import { Lab } from "../components/lab";
 import { Laboratory, parseLaboratory } from "../parser";
 
-import exampleCode from "../../examples/in/records_and_tuples.jspl?raw";
+import exampleCode from "../../examples/in/records_and_tuples.spa?raw";
 
 const setLocalStorage = fromThrowable((key: string, value: string) => localStorage.setItem(key, value), e => e);
 
@@ -23,7 +23,7 @@ export default function({ languageConfig }: { languageConfig: LanguageClientConf
     const [current, setCurrent] = useState<Laboratory | undefined>();
 
     const save = useDebouncedCallback(setLocalStorage, 1000);
-    const lastDraft = localStorage.getItem("draft") ?? exampleCode;
+    const lastDraft = localStorage.getItem("draft") || exampleCode;
 
     const change = async (input: string) =>
     {
@@ -44,7 +44,7 @@ export default function({ languageConfig }: { languageConfig: LanguageClientConf
                 }}
                 onEditorStartDone={app =>
                 {
-                    app?.getEditor()?.setModel(monaco.editor.createModel(lastDraft, "jspl"));
+                    app?.getEditor()?.setModel(monaco.editor.createModel(lastDraft, "specalt"));
                 }}
             />
             <Lab

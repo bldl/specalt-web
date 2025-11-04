@@ -26,7 +26,7 @@ struct output
 
 output solve(const input &inp)
 {
-    using namespace jspl;
+    using namespace spa;
 
     auto ctx = z3::context{};
     auto opt = z3::optimize{ctx};

@@ -1,15 +1,15 @@
 {
-  "name": "jspl",
+  "name": "specalt",
   "description": "The JavaScript Language Proposal Laboratory",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bldl/jspl"
+    "url": "https://github.com/bldl/specalt-web"
   },
   "bugs": {
-    "url": "https://github.com/bldl/jspl/issues"
+    "url": "https://github.com/bldl/specalt-web/issues"
   },
-  "homepage": "https://github.com/bldl/jspl",
+  "homepage": "https://github.com/bldl/specalt-web",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

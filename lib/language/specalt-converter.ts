@@ -1,6 +1,6 @@
 import { CstNode, DefaultValueConverter } from "langium";
 
-export class JSPLValueConverter extends DefaultValueConverter
+export class SpecAltValueConverter extends DefaultValueConverter
 {
     convert(input: string, cstNode: CstNode)
     {

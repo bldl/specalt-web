@@ -3,7 +3,7 @@
 #include <format>
 #include <unordered_set>
 
-namespace jspl
+namespace spa
 {
     static const auto special = std::unordered_set<char>{'+', '-', '<', '>', '='};
 
@@ -103,4 +103,4 @@ namespace jspl
 
         return constant().or_else(bind_ignore(&lexer::literal, this));
     }
-} // namespace jspl
+} // namespace spa

@@ -1,12 +1,12 @@
 {
-  "projectName": "JSPL",
+  "projectName": "SpecAlt",
   "languages": [{
-    "id": "jspl",
+    "id": "specalt",
     "textMate": {
-      "out": "../syntaxes/jspl-format.tmLanguage.json"
+      "out": "../syntaxes/specalt-format.tmLanguage.json"
     },
-    "fileExtensions": [".jspl"],
-    "grammar": "../lib/language/jspl.langium"
+    "fileExtensions": [".spa"],
+    "grammar": "../lib/language/specalt.langium"
   }],
   "out": "../lib/language/generated"
 }

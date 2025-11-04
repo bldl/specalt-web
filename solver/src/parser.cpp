@@ -3,7 +3,7 @@
 #include <format>
 #include <utility>
 
-namespace jspl
+namespace spa
 {
     parser::parser(std::string_view source) : m_lexer(source)
     {
@@ -65,12 +65,12 @@ namespace jspl
     {
         if (auto tok = take(token_type::literal); tok)
         {
-            return std::make_unique<jspl::literal>(tok->value);
+            return std::make_unique<spa::literal>(tok->value);
         }
 
         if (auto tok = take(token_type::constant); tok)
         {
-            return std::make_unique<jspl::constant>(tok->value);
+            return std::make_unique<spa::constant>(tok->value);
         }
 
         return err{"Expected primary"};
@@ -92,7 +92,7 @@ namespace jspl
             return prim;
         }
 
-        return std::make_unique<jspl::unary>(op->type, std::move(prim.value()));
+        return std::make_unique<spa::unary>(op->type, std::move(prim.value()));
     }
 
     res<node> parser::expr()
@@ -122,7 +122,7 @@ namespace jspl
                 return right;
             }
 
-            left = std::make_unique<jspl::binary>(op->type, std::move(left.value()), std::move(right.value()));
+            left = std::make_unique<spa::binary>(op->type, std::move(left.value()), std::move(right.value()));
         }
 
         return left;
@@ -172,6 +172,6 @@ namespace jspl
             return err{res.error()};
         }
 
-        return std::make_unique<jspl::binary>(op->type, std::move(left.value()), std::move(right.value()));
+        return std::make_unique<spa::binary>(op->type, std::move(left.value()), std::move(right.value()));
     }
-} // namespace jspl
+} // namespace spa

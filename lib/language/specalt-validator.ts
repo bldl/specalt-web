@@ -1,14 +1,14 @@
 import type { ValidationAcceptor, ValidationChecks } from "langium";
 
-import { type JSPLFormatServices } from "./jspl-format-module";
+import { type SpecAltFormatServices } from "./specalt-format-module";
 import { extractReferenceables, getAllUsedConcerns, getAllUsedReferenceables } from "./utils";
-import { Condition, type JSPLAstType, LaboratoryInformation, Model, Proposition, Statement } from "./generated/ast";
+import { Condition, LaboratoryInformation, Model, Proposition, type SpecAltAstType, Statement } from "./generated/ast";
 
-export function registerValidationChecks({ validation }: JSPLFormatServices)
+export function registerValidationChecks({ validation }: SpecAltFormatServices)
 {
-    const { ValidationRegistry: registry, JSPLFormatValidator: validator } = validation;
+    const { ValidationRegistry: registry, SpecAltFormatValidator: validator } = validation;
 
-    const checks: ValidationChecks<JSPLAstType> = {
+    const checks: ValidationChecks<SpecAltAstType> = {
         Model: [
             validator.uniqueConcernIdentifiers,
             validator.uniqueReferenceableIdentifiers,
@@ -32,7 +32,7 @@ export function registerValidationChecks({ validation }: JSPLFormatServices)
     registry.register(checks, validator);
 }
 
-export class JSPLFormatValidator
+export class SpecAltFormatValidator
 {
     uniqueConcernIdentifiers(model: Model, accept: ValidationAcceptor)
     {

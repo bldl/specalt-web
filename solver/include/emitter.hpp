@@ -5,7 +5,7 @@
 #include <z3++.h>
 #include <unordered_map>
 
-namespace jspl
+namespace spa
 {
     // While the whole parser for expressions here is rather overkill, it would allow to
     // easily swap out z3 with scip in the future if desired (scip does not work well with wasm though).
@@ -31,4 +31,4 @@ namespace jspl
       public:
         res<z3::expr> emit(node);
     };
-} // namespace jspl
+} // namespace spa

@@ -7,7 +7,7 @@
 #include <string>
 #include <variant>
 
-namespace jspl
+namespace spa
 {
     template <typename T>
     using res = std ::expected<T, std::string>;
@@ -22,6 +22,6 @@ namespace jspl
 
     template <typename C, typename T, typename... Ts>
     auto bind_ignore(T (C::*)(Ts...), C *, Ts &&...);
-} // namespace jspl
+} // namespace spa
 
 #include "utils.inl"

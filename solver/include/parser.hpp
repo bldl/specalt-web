@@ -3,7 +3,7 @@
 #include "lexer.hpp"
 #include "utils.hpp"
 
-namespace jspl
+namespace spa
 {
     struct binary;
     struct unary;
@@ -62,4 +62,4 @@ namespace jspl
         [[nodiscard]] res<node> objective();
         [[nodiscard]] res<node> constraint();
     };
-} // namespace jspl
+} // namespace spa

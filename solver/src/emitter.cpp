@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace jspl
+namespace spa
 {
     emitter::emitter(z3::context &ctx, variables &vars) : m_context(&ctx), m_variables(&vars) {}
 
@@ -94,4 +94,4 @@ namespace jspl
     {
         return std::visit([this](auto &&value) { return emit(*value); }, std::move(node));
     }
-} // namespace jspl
+} // namespace spa

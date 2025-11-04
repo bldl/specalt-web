@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace jspl
+namespace spa
 {
     enum class token_type : std::uint8_t
     {
@@ -49,4 +49,4 @@ namespace jspl
       public:
         res<token> next();
     };
-} // namespace jspl
+} // namespace spa

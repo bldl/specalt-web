@@ -11,7 +11,7 @@ import {
 
 import workerUrl from "../worker/specalt-server?worker&url";
 import langiumConfig from "../../config/langium.json?raw";
-import langiumGrammar from "../../syntaxes/jspl-format.tmLanguage.json?raw";
+import langiumGrammar from "../../syntaxes/specalt-format.tmLanguage.json?raw";
 import { LanguageClientConfig } from "monaco-languageclient/lcwrapper";
 import { BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
 
@@ -43,13 +43,13 @@ export const vscodeConfig: MonacoVscodeApiConfig = {
             },
             contributes: {
                 languages: [{
-                    id: "jspl",
-                    extensions: [".jspl"],
+                    id: "specalt",
+                    extensions: [".spa"],
                     configuration: "/workspace/langium-configuration.json",
                 }],
                 grammars: [{
-                    language: "jspl",
-                    scopeName: "source.jspl",
+                    language: "specalt",
+                    scopeName: "source.specalt",
                     path: "/workspace/langium-grammar.json",
                 }],
             },
@@ -80,12 +80,12 @@ export async function initMonaco()
 
     registerFileSystemOverlay(1, fs);
 
-    const worker = new Worker(workerUrl, { type: "module", name: "JSPL LS" });
+    const worker = new Worker(workerUrl, { type: "module", name: "spals" });
 
     const languageClientConfig: LanguageClientConfig = {
-        languageId: "jspl",
+        languageId: "specalt",
         clientOptions: {
-            documentSelector: ["jspl"],
+            documentSelector: ["specalt"],
         },
         connection: {
             options: {

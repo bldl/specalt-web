@@ -5,7 +5,7 @@
 #include <utility>
 #include <functional>
 
-namespace jspl
+namespace spa
 {
     template <typename C, typename T, typename... Ts>
     auto bind_ignore(T (C::*func)(Ts...), C *instance, Ts &&...params)
@@ -25,4 +25,4 @@ namespace jspl
             return std::invoke(std::forward<T>(callable), std::forward<Ts>(params)...);
         };
     }
-} // namespace jspl
+} // namespace spa
