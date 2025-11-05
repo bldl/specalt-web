@@ -26,6 +26,8 @@ namespace spa
         {
             using enum token_type;
 
+        case mult:
+            return left.value() * right.value();
         case plus:
             return left.value() + right.value();
         case minus:

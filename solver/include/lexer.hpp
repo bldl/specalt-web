@@ -16,6 +16,7 @@ namespace spa
         leq,
         geq,
         neq,
+        mult,
         plus,
         minus,
         literal,

@@ -100,11 +100,40 @@ namespace spa
         return rtn;
     }
 
+    template <>
+    struct parser::allowed_tokens<precedence::low>
+    {
+        static constexpr auto value = {token_type::minus, token_type::plus};
+    };
+
+    template <>
+    struct parser::allowed_tokens<precedence::high>
+    {
+        static constexpr auto value = {token_type::mult};
+    };
+
+    template <>
+    struct parser::next_precedence<precedence::low>
+    {
+        static constexpr auto value = &parser::term<precedence::high>;
+    };
+
+    template <>
+    struct parser::next_precedence<precedence::high>
+    {
+        static constexpr auto value = &parser::expr;
+    };
+
+    template res<node> parser::term<precedence::low>();
+    template res<node> parser::term<precedence::high>();
+
+    template <precedence P>
     res<node> parser::term() // NOLINT(*-recursion)
     {
         using enum token_type;
 
-        auto left = expr();
+        auto next = std::bind_front(next_precedence<P>::value, this);
+        auto left = next();
 
         if (!left)
         {
@@ -113,9 +142,9 @@ namespace spa
 
         auto op = res<token>{};
 
-        while ((op = take({plus, minus})))
+        while ((op = take(allowed_tokens<P>::value)))
         {
-            auto right = expr();
+            auto right = next();
 
             if (!right)
             {

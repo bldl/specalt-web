@@ -5,7 +5,7 @@
 
 namespace spa
 {
-    static const auto special = std::unordered_set<char>{'+', '-', '<', '>', '='};
+    static const auto special = std::unordered_set<char>{'*', '+', '-', '<', '>', '='};
 
     lexer::lexer(std::string_view source) : m_source(source) {}
 
@@ -83,6 +83,8 @@ namespace spa
         {
             using enum token_type;
 
+        case '*':
+            return token{.type = mult, .value = consume(1)};
         case '+':
             return token{.type = plus, .value = consume(1)};
         case '-':

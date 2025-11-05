@@ -34,8 +34,21 @@ namespace spa
         std::string_view value;
     };
 
+    enum class precedence : std::uint8_t
+    {
+        low,
+        high,
+    };
+
     class parser
     {
+        template <precedence>
+        struct allowed_tokens;
+
+        template <precedence>
+        struct next_precedence;
+
+      private:
         lexer m_lexer;
         res<token> m_current;
 
@@ -55,6 +68,7 @@ namespace spa
 
       private:
         [[nodiscard]] res<node> expr();
+        template <precedence = precedence::low>
         [[nodiscard]] res<node> term();
 
       public:
