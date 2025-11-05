@@ -139,7 +139,7 @@ function mapRaiseConstraints({ input, laboratory, mappings }: State)
     }
 }
 
-export function makeInput(laboratory: Laboratory)
+export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
 {
     const input: GeneratedInput = {
         variables: [],
@@ -164,17 +164,22 @@ export function makeInput(laboratory: Laboratory)
     mapTweakableConstraints(state);
     mapRaiseConstraints(state);
 
-    const concerns = laboratory.concerns.keys()
-        .map(name => mappings.concerns.get(name)!);
+    const concerns: string[] = [];
 
-    // TODO: Support weights
-    input.objective = [...concerns].join("+");
+    for (const concern of laboratory.concerns.keys())
+    {
+        const weight = weights.get(concern) ?? 1;
+        const variable = mappings.concerns.get(concern)!;
 
-    console.table(mappings.propositions);
-    console.table(mappings.concerns);
-    console.log(input);
+        if (weight <= 0)
+        {
+            continue;
+        }
 
-    console.log(input.constraints.join("\n"));
+        concerns.push(weight > 1 ? `(${weight}*${variable})` : variable);
+    }
+
+    input.objective = concerns.join("+");
 
     return { input, mappings };
 }
