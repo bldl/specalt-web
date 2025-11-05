@@ -124,7 +124,7 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
             value: () => state.tweakables.get(name)!,
             update: val => state.tweakables.set(name, val),
             disable: () => evalauteDisable(tweakable, state),
-            concerns: () => evaluateConcerns(tweakable, state),
+            concerns: () => evalauteDisable(tweakable, state) ? [] : evaluateConcerns(tweakable, state),
         });
 
         state.tweakables.set(name, defaultValue);
