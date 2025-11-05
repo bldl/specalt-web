@@ -1,13 +1,5 @@
-import { Erased, LogicalExpressionExtractor } from "../../lib/language/utils";
-
-import {
-    AndExpression,
-    Group,
-    Negation,
-    OrExpression,
-    PropositionalExpression,
-    Statement,
-} from "../../lib/language/generated/ast";
+import { Erased, Expression, LogicalExpressionExtractor } from "../../lib/language/utils";
+import { AndExpression, Group, Negation, OrExpression, Statement } from "../../lib/language/generated/ast";
 
 export type Value = string | boolean;
 export type Evaluator<T = boolean> = () => T;
@@ -70,7 +62,7 @@ export const lazyEvaluator: LogicalExpressionExtractor<Evaluator, State> = {
                 return () => get(name) === expression.value;
         }
     },
-    fromExpression: (expression: Erased<PropositionalExpression>, state: State) =>
+    fromExpression: (expression: Expression, state: State) =>
     {
         switch (expression.$type)
         {
