@@ -56,6 +56,7 @@ function Optimizer({ laboratory, notify }: { laboratory: Laboratory; notify: () 
                                 <Group wrap="nowrap">
                                     <NumberInput
                                         w={75}
+                                        min={0}
                                         value={value}
                                         onChange={value => update(name, value as number)}
                                     />
