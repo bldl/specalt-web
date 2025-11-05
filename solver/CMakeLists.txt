@@ -17,6 +17,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23 CXX_EXTENSIONS 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "solver")
 target_link_options(${PROJECT_NAME} PRIVATE "SHELL:--emit-tsd \"${CMAKE_CURRENT_SOURCE_DIR}/wasm/solver.d.ts\"")
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../public")
 
 # --------------------------------------------------------------------------------------------------------
 # Setup Includes
