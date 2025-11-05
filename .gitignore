@@ -3,4 +3,5 @@
 test/
 syntaxes/
 node_modules/
+public/solver*
 lib/language/generated
