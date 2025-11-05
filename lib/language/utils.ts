@@ -10,25 +10,29 @@ import {
     Statement,
 } from "./generated/ast";
 
-export type LogicalExpressionExtractor<T, Ts extends any[] = []> = {
-    fromExpression: (expr: PropositionalExpression, ...state: Ts) => T;
-    fromOrExpression: (expr: OrExpression, ...state: Ts) => T;
-    fromAndExpression: (expr: AndExpression, ...state: Ts) => T;
-    fromNegation: (expr: Negation, ...state: Ts) => T;
-    fromGroup: (expr: Group, ...state: Ts) => T;
-    fromStatement: (expr: Statement, ...state: Ts) => T;
+export type ErasedKeys<T> = T extends `$${infer K}` ? (K extends "type" ? never : T) : never;
+export type NeedsErasure<T> = Extract<keyof T, `$${string}`> extends never ? false : true;
+
+export type ErasedExpression<T> = {
+    [K in keyof Omit<T, ErasedKeys<keyof T>>]: Erased<T[K]>;
 };
 
-export const extractReferenceables: LogicalExpressionExtractor<void, [Set<Referenceable>]> & {
-    from: (expr: PropositionalExpression) => Set<Referenceable>;
-} = {
-    from: (expression: PropositionalExpression) =>
-    {
-        const output = new Set<Referenceable>();
-        extractReferenceables.fromExpression(expression, output);
-        return output;
-    },
-    fromExpression: (expression: PropositionalExpression, output: Set<Referenceable>) =>
+export type ErasedUnion<T> = T extends any ? ErasedExpression<T> : never;
+export type Erased<T> = NeedsErasure<T> extends true ? T | ErasedUnion<T> : T;
+export type Expression = Erased<PropositionalExpression>;
+
+export type LogicalExpressionExtractor<T, S = undefined> = {
+    fromExpression: (expr: Expression, state: S) => T;
+    fromOrExpression: (expr: Erased<OrExpression>, state: S) => T;
+    fromAndExpression: (expr: Erased<AndExpression>, state: S) => T;
+    fromNegation: (expr: Erased<Negation>, state: S) => T;
+    fromGroup: (expr: Erased<Group>, state: S) => T;
+    fromStatement: (expr: Erased<Statement>, state: S) => T;
+    from?: (expr: Expression) => S;
+};
+
+export const extractReferenceables: LogicalExpressionExtractor<void, Set<Referenceable>> = {
+    fromExpression: (expression: Expression, output: Set<Referenceable>) =>
     {
         if (expression === undefined)
         {
@@ -38,41 +42,36 @@ export const extractReferenceables: LogicalExpressionExtractor<void, [Set<Refere
         switch (expression.$type)
         {
             case "OrExpression":
-                extractReferenceables.fromOrExpression(expression as OrExpression, output);
-                break;
+                return extractReferenceables.fromOrExpression(expression as OrExpression, output);
             case "AndExpression":
-                extractReferenceables.fromAndExpression(expression as AndExpression, output);
-                break;
+                return extractReferenceables.fromAndExpression(expression as AndExpression, output);
             case "Negation":
-                extractReferenceables.fromNegation(expression as Negation, output);
-                break;
+                return extractReferenceables.fromNegation(expression as Negation, output);
             case "Group":
-                extractReferenceables.fromGroup(expression as Group, output);
-                break;
+                return extractReferenceables.fromGroup(expression as Group, output);
             case "Statement":
-                extractReferenceables.fromStatement(expression as Statement, output);
-                break;
+                return extractReferenceables.fromStatement(expression as Statement, output);
         }
     },
-    fromOrExpression: (expression: OrExpression, output: Set<Referenceable>) =>
+    fromOrExpression: (expression: Erased<OrExpression>, output: Set<Referenceable>) =>
     {
         extractReferenceables.fromExpression(expression.left, output);
         extractReferenceables.fromExpression(expression.right, output);
     },
-    fromAndExpression: (expression: AndExpression, output: Set<Referenceable>) =>
+    fromAndExpression: (expression: Erased<AndExpression>, output: Set<Referenceable>) =>
     {
         extractReferenceables.fromExpression(expression.left, output);
         extractReferenceables.fromExpression(expression.right, output);
     },
-    fromNegation: (expression: Negation, output: Set<Referenceable>) =>
+    fromNegation: (expression: Erased<Negation>, output: Set<Referenceable>) =>
     {
         extractReferenceables.fromExpression(expression.inner, output);
     },
-    fromGroup: (expression: Group, output: Set<Referenceable>) =>
+    fromGroup: (expression: Erased<Group>, output: Set<Referenceable>) =>
     {
         extractReferenceables.fromExpression(expression.inner, output);
     },
-    fromStatement: (statement: Statement, output: Set<Referenceable>) =>
+    fromStatement: (statement: Erased<Statement>, output: Set<Referenceable>) =>
     {
         const { ref } = statement.reference;
 
@@ -83,43 +82,42 @@ export const extractReferenceables: LogicalExpressionExtractor<void, [Set<Refere
 
         output.add(ref);
     },
+    from: (expression: Expression) =>
+    {
+        const output = new Set<Referenceable>();
+        extractReferenceables.fromExpression(expression, output);
+        return output;
+    },
 };
 
 export function getAllUsedConcerns(model: Model)
 {
-    const result = new Set<Concern>();
+    const result: Concern[] = [];
 
-    for (const proposition of model.propositions)
+    const clauses = model.propositions
+        .flatMap(prop => prop.valueClauses);
+
+    for (const clause of clauses)
     {
-        for (const clause of proposition.valueClauses)
-        {
-            // TODO: Can concern be undefined?
-            clause.raises.map(x => x.concern?.ref)
-                .filter(x => x !== undefined)
-                .forEach(item => result.add(item));
-        }
+        result.push(...clause.raises.map(r => r.concern.ref).filter(ref => !!ref));
     }
 
-    return result;
+    return new Set(result);
 }
 
 export function getAllUsedReferenceables(model: Model)
 {
-    const result = new Set<Referenceable>();
+    const result: Referenceable[] = [];
 
     for (const prop of model.propositions)
     {
-        for (const clause of prop.valueClauses)
-        {
-            for (const concern of clause.raises)
-            {
-                if (!concern.condition)
-                {
-                    continue;
-                }
+        const raised = prop.valueClauses
+            .flatMap(clause => clause.raises)
+            .filter(concern => !!concern.condition);
 
-                extractReferenceables.from(concern.condition.expression).forEach(item => result.add(item));
-            }
+        for (const concern of raised)
+        {
+            result.push(...extractReferenceables.from!(concern.condition!.expression));
         }
 
         if (!prop.disable)
@@ -129,9 +127,78 @@ export function getAllUsedReferenceables(model: Model)
 
         for (const stmt of prop.disable.statements)
         {
-            extractReferenceables.from(stmt.condition.expression).forEach(item => result.add(item));
+            result.push(...extractReferenceables.from!(stmt.condition.expression));
         }
     }
 
-    return result;
+    return new Set(result);
+}
+
+export function* getAllRaisedConcerns(model: Model)
+{
+    for (const prop of model.propositions)
+    {
+        for (const clause of prop.valueClauses)
+        {
+            for (const concern of clause.raises)
+            {
+                yield { from: prop, clause, raise: concern };
+            }
+        }
+    }
+}
+
+export function getAllConditionsForRaises(model: Model)
+{
+    const rtn = new Map<string, Expression[]>();
+
+    for (const { from, clause, raise } of getAllRaisedConcerns(model))
+    {
+        const name = raise.concern.ref!.name;
+
+        if (!rtn.has(name))
+        {
+            rtn.set(name, []);
+        }
+
+        // Pre-Condition to trigger this raise (i.e. this tweakable must have the current value [clause] to raise this concern)
+        let expr: Expression = {
+            $type: "Statement",
+            negation: false,
+            value: clause.value,
+            reference: { ref: from },
+        };
+
+        // It is only raused under this specific condition
+        if (raise.condition)
+        {
+            expr = {
+                $type: "AndExpression",
+                left: expr,
+                right: raise.condition.expression,
+            };
+        }
+
+        // The condition cannot be raised when the tweakable is disabled
+        if (from.disable)
+        {
+            expr = {
+                $type: "AndExpression",
+                left: {
+                    $type: "Negation",
+                    inner: collapse(from.disable.statements.map(item => item.condition.expression)),
+                },
+                right: expr,
+            };
+        }
+
+        rtn.get(name)!.push(expr);
+    }
+
+    return rtn;
+}
+
+export function collapse(expressions: Expression[])
+{
+    return expressions.reduce((a, b) => ({ $type: "OrExpression", left: a, right: b }));
 }

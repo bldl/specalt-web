@@ -1,4 +1,4 @@
-import { LogicalExpressionExtractor } from "../../lib/language/utils";
+import { Erased, LogicalExpressionExtractor } from "../../lib/language/utils";
 
 import {
     AndExpression,
@@ -23,31 +23,31 @@ export interface State
     conditions: Map<string, Evaluator>;
 }
 
-export const lazyEvaluator: LogicalExpressionExtractor<Evaluator, [State]> = {
-    fromOrExpression: (expression: OrExpression, state: State) =>
+export const lazyEvaluator: LogicalExpressionExtractor<Evaluator, State> = {
+    fromOrExpression: (expression: Erased<OrExpression>, state: State) =>
     {
         const left = lazyEvaluator.fromExpression(expression.left, state);
         const right = lazyEvaluator.fromExpression(expression.right, state);
 
         return () => evaluate(left) || evaluate(right);
     },
-    fromAndExpression: (expression: AndExpression, state: State) =>
+    fromAndExpression: (expression: Erased<AndExpression>, state: State) =>
     {
         const left = lazyEvaluator.fromExpression(expression.left, state);
         const right = lazyEvaluator.fromExpression(expression.right, state);
 
         return () => evaluate(left) && evaluate(right);
     },
-    fromNegation: (expression: Negation, state: State) =>
+    fromNegation: (expression: Erased<Negation>, state: State) =>
     {
         const inner = lazyEvaluator.fromExpression(expression, state);
         return () => !evaluate(inner);
     },
-    fromGroup: (expression: Group, state: State) =>
+    fromGroup: (expression: Erased<Group>, state: State) =>
     {
         return lazyEvaluator.fromExpression(expression.inner, state);
     },
-    fromStatement: (expression: Statement, state: State) =>
+    fromStatement: (expression: Erased<Statement>, state: State) =>
     {
         const { name, $type } = expression.reference.ref!;
 
@@ -70,7 +70,7 @@ export const lazyEvaluator: LogicalExpressionExtractor<Evaluator, [State]> = {
                 return () => get(name) === expression.value;
         }
     },
-    fromExpression: (expression: PropositionalExpression, state: State) =>
+    fromExpression: (expression: Erased<PropositionalExpression>, state: State) =>
     {
         switch (expression.$type)
         {
