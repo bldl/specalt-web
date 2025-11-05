@@ -2,7 +2,7 @@ import type { ValidationAcceptor, ValidationChecks } from "langium";
 
 import { type SpecAltFormatServices } from "./specalt-format-module";
 import { extractReferenceables, getAllUsedConcerns, getAllUsedReferenceables } from "./utils";
-import { Condition, LaboratoryInformation, Model, Proposition, type SpecAltAstType, Statement } from "./generated/ast";
+import { Condition, Model, Proposition, type SpecAltAstType, Statement } from "./generated/ast";
 
 export function registerValidationChecks({ validation }: SpecAltFormatServices)
 {
@@ -20,9 +20,6 @@ export function registerValidationChecks({ validation }: SpecAltFormatServices)
         ],
         Condition: [
             validator.noRecursionInConditions,
-        ],
-        LaboratoryInformation: [
-            validator.noDuplicateFieldsInLaboratoryInformation,
         ],
         Statement: [
             validator.statementReferencesValidValue,
@@ -54,44 +51,24 @@ export class SpecAltFormatValidator
     {
         const reported = new Map<string, Condition | Proposition>();
 
-        // TODO: Remove Code-Duplication here
-
-        for (const cond of model.conditions)
+        for (const item of [...model.conditions, ...model.propositions])
         {
-            if (!reported.has(cond.name))
+            if (!reported.has(item.name))
             {
-                reported.set(cond.name, cond);
+                reported.set(item.name, item);
                 continue;
             }
 
-            const nodes = [cond, reported.get(cond.name)!];
+            const nodes = [item, reported.get(item.name)!];
 
-            nodes.forEach(node =>
-                accept(
-                    "error",
-                    `Condition has non-unique name '${node.name}'. All names of Propositions and Conditions must be unique, to be properly referenced.`,
-                    { node, property: "name" },
-                )
-            );
-        }
-
-        for (const prop of model.propositions)
-        {
-            if (!reported.has(prop.name))
+            for (const violating of nodes)
             {
-                reported.set(prop.name, prop);
-                continue;
-            }
-
-            const nodes = [prop, reported.get(prop.name)!];
-
-            nodes.forEach(node =>
                 accept(
                     "error",
-                    `Proposition has non-unique name '${node.name}'. All names of Propositions and Conditions must be unique, to be properly referenced.`,
-                    { node, property: "name" },
-                )
-            );
+                    `${item.$type} has non-unique name '${violating.name}'. All names of Propositions and Conditions must be unique, to be properly referenced.`,
+                    { node: violating, property: "name" },
+                );
+            }
         }
     }
 
@@ -125,8 +102,8 @@ export class SpecAltFormatValidator
         if (valueClauses.length == 1 && !valueClauses[0].default)
         {
             return accept(
-                "info",
-                `${valueClauses[0].value} of proposition ${name} is assumed to be default`,
+                "warning",
+                `${valueClauses[0].value} of proposition ${name} is implicitly default`,
                 { node: valueClauses[0], property: "default" },
             );
         }
@@ -153,7 +130,7 @@ export class SpecAltFormatValidator
     {
         const { name, condition } = node;
 
-        const extracted = extractReferenceables.from(condition.expression);
+        const extracted = extractReferenceables.from!(condition.expression);
         const hasRecursion = [...extracted].some(ref => ref.name === name);
 
         if (!hasRecursion)
@@ -164,49 +141,28 @@ export class SpecAltFormatValidator
         accept("error", `Recursion is not allowed here.`, { node, property: "name" });
     }
 
-    // TODO: What's the use case of this? Why not make it impossible on grammar level?
-    noDuplicateFieldsInLaboratoryInformation(information: LaboratoryInformation, accept: ValidationAcceptor)
+    statementReferencesValidValue(statement: Statement, accept: ValidationAcceptor)
     {
-        if (information.descriptions.length > 1)
+        if (!statement.reference.ref)
         {
-            accept("error", "Multiple descriptions for one laboratory are not allowed.", { node: information });
+            return;
         }
-        if (information.titles.length > 1)
-        {
-            accept("error", "Multiple titles for one laboratory are not allowed.", { node: information });
-        }
-        if (information.icons.length > 1)
-        {
-            accept("error", "Multiple icons for one laboratory are not allowed.", { node: information });
-        }
-        if (information.authors.length > 1)
-        {
-            accept("error", "Multiple authors for one laboratory are not allowed.", { node: information });
-        }
-        if (information.versions.length > 1)
-        {
-            accept("error", "Multiple versions for one laboratory are not allowed.", { node: information });
-        }
-    }
-
-    // TODO: Cleanup
-    statementReferencesValidValue(statement: Statement, accept: ValidationAcceptor): void
-    {
-        if (statement === undefined) return;
-        if (statement.value === undefined) return;
-        if (statement.reference === undefined) return;
-        if (statement.reference.ref === undefined) return;
 
         const referenceable = statement.reference.ref;
         const value = statement.value;
 
-        if (referenceable.$type === "Condition" && typeof value !== "boolean")
-        {
-            return accept("error", "Stated value is not a valid value of the referenced object.", {
+        const reject = () =>
+            accept("error", "Stated value is not a valid value of the referenced object.", {
                 node: statement,
                 property: "value",
             });
-        } else if (referenceable.$type === "Condition")
+
+        if (referenceable.$type === "Condition" && typeof value !== "boolean")
+        {
+            return reject();
+        }
+
+        if (referenceable.$type === "Condition")
         {
             return;
         }
@@ -218,9 +174,6 @@ export class SpecAltFormatValidator
             return;
         }
 
-        accept("error", "Stated value is not a valid value of the referenced object.", {
-            node: statement,
-            property: "value",
-        });
+        reject();
     }
 }

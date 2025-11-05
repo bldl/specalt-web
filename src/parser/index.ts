@@ -2,7 +2,7 @@ import { err, ok } from "neverthrow";
 
 import { Res } from "../../lib/utils";
 import { extractModel } from "../../lib/model";
-import { Concern, Proposition } from "../../lib/language/generated/ast";
+import { Concern, Model, Proposition } from "../../lib/language/generated/ast";
 
 import { evaluate, Evaluator, lazyEvaluator, State, Value } from "./utils";
 
@@ -14,8 +14,10 @@ export interface Given
 
 export interface Tweakable
 {
+    raw: Proposition;
+
+    name: string;
     expression: string;
-    disable: Evaluator;
 
     value: Evaluator<Value>;
     update: (value: Value) => void;
@@ -23,11 +25,14 @@ export interface Tweakable
     defaultValue: Value;
     allowedValues: Value[];
 
+    disable: Evaluator;
     concerns: Evaluator<Concern[]>;
 }
 
 export interface Laboratory
 {
+    model: Model;
+
     title?: string;
     authors?: string[];
     description?: string;
@@ -111,6 +116,8 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         const allowedValues = valueClauses.map(item => item.value);
 
         tweakables.push({
+            raw: tweakable,
+            name,
             expression,
             defaultValue,
             allowedValues,
@@ -128,12 +135,13 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
     ));
 
     return ok({
-        title: laboratory?.titles[0],
+        title: laboratory?.title,
         authors: laboratory?.authors,
-        description: laboratory?.descriptions[0],
-        version: laboratory?.versions[0],
+        description: laboratory?.description,
+        version: laboratory?.version,
         concerns,
         givens,
         tweakables,
+        model: model.value,
     });
 }

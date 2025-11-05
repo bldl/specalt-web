@@ -24,11 +24,10 @@ hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 LaboratoryInformation:
     "laboratory" "{" 
         ( // allow only one field to be used multiple times via validators
-            ("title" titles+=STRING)
-            | ("description" descriptions+=STRING)
-            | ("icon" icons+=STRING)
+            ("title" title=STRING)
+            | ("description" description=STRING)
             | ("author" authors+=STRING)
-            | ("version" versions+=STRING)
+            | ("version" version=STRING)
         )*
     "}"
 ;

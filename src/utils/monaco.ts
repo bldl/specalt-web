@@ -1,7 +1,9 @@
 import * as vscode from "vscode";
 
+import { LanguageClientConfig } from "monaco-languageclient/lcwrapper";
 import { MonacoVscodeApiConfig } from "monaco-languageclient/vscodeApiWrapper";
 import { configureDefaultWorkerFactory } from "monaco-languageclient/workerFactory";
+import { BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
 
 import {
     type IFileWriteOptions,
@@ -12,8 +14,6 @@ import {
 import workerUrl from "../worker/specalt-server?worker&url";
 import langiumConfig from "../../config/langium.json?raw";
 import langiumGrammar from "../../syntaxes/specalt-format.tmLanguage.json?raw";
-import { LanguageClientConfig } from "monaco-languageclient/lcwrapper";
-import { BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
 
 const extensionFilesOrContents = new Map<string, string>(
     [
