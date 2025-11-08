@@ -101,27 +101,17 @@ namespace spa
     }
 
     template <>
-    struct parser::allowed_tokens<precedence::low>
+    struct parser::precedence_info<precedence::low>
     {
-        static constexpr auto value = {token_type::minus, token_type::plus};
+        static constexpr auto tokens = {token_type::minus, token_type::plus};
+        static constexpr auto next   = &parser::term<precedence::high>;
     };
 
     template <>
-    struct parser::allowed_tokens<precedence::high>
+    struct parser::precedence_info<precedence::high>
     {
-        static constexpr auto value = {token_type::mult};
-    };
-
-    template <>
-    struct parser::next_precedence<precedence::low>
-    {
-        static constexpr auto value = &parser::term<precedence::high>;
-    };
-
-    template <>
-    struct parser::next_precedence<precedence::high>
-    {
-        static constexpr auto value = &parser::expr;
+        static constexpr auto tokens = {token_type::mult};
+        static constexpr auto next   = &parser::expr;
     };
 
     template res<node> parser::term<precedence::low>();
@@ -132,7 +122,7 @@ namespace spa
     {
         using enum token_type;
 
-        auto next = std::bind_front(next_precedence<P>::value, this);
+        auto next = std::bind_front(precedence_info<P>::next, this);
         auto left = next();
 
         if (!left)
@@ -142,7 +132,7 @@ namespace spa
 
         auto op = res<token>{};
 
-        while ((op = take(allowed_tokens<P>::value)))
+        while ((op = take(precedence_info<P>::tokens)))
         {
             auto right = next();
 

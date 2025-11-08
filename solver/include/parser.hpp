@@ -43,10 +43,7 @@ namespace spa
     class parser
     {
         template <precedence>
-        struct allowed_tokens;
-
-        template <precedence>
-        struct next_precedence;
+        struct precedence_info;
 
       private:
         lexer m_lexer;
