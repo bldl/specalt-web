@@ -4,7 +4,7 @@ import Markdown from "../components/markdown";
 import { IconAlertTriangle } from "@tabler/icons-react";
 
 import {
-    Accordion,
+    Alert,
     Badge,
     Card,
     CardProps,
@@ -15,9 +15,6 @@ import {
     ScrollArea,
     Stack,
     StackProps,
-    Switch,
-    Text,
-    ThemeIcon,
     Title,
 } from "@mantine/core";
 
@@ -36,15 +33,13 @@ export function Item({ item, notify, ...props }: ItemProps)
 
     const disable = "disable" in item ? evaluate(item.disable) : true;
     const concerns = "concerns" in item ? evaluate(item.concerns) : [];
+    const allowedValues = "allowedValues" in item ? item.allowedValues.map(value => `${value}`) : [`${item.value}`];
 
-    const allowedValues = "allowedValues" in item ? item.allowedValues : [item.value];
-    const boolish = allowedValues.every(item => typeof item === "boolean");
-
-    const update = ({ currentTarget }: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    const update = ({ currentTarget }: ChangeEvent<HTMLSelectElement>) =>
     {
         if ("update" in item)
         {
-            item.update("checked" in currentTarget ? currentTarget.checked : currentTarget.value);
+            item.update(item.type === "boolean" ? currentTarget.value === "true" : currentTarget.value);
         }
 
         notify?.();
@@ -57,48 +52,29 @@ export function Item({ item, notify, ...props }: ItemProps)
                     <Code>
                         {expression}
                     </Code>
-                    {boolish
-                        ? (
-                            <Switch
-                                onChange={update}
-                                disabled={disable}
-                                checked={evaluate(value) as boolean}
-                            />
-                        )
-                        : (
-                            <NativeSelect
-                                onChange={update}
-                                disabled={disable}
-                                data={allowedValues as string[]}
-                                value={evaluate(value) as string}
-                            />
-                        )}
+                    <NativeSelect
+                        onChange={update}
+                        disabled={disable}
+                        data={allowedValues}
+                        value={`${evaluate(value)}`}
+                    />
                 </Group>
                 {concerns.length > 0
                     && (
-                        <Accordion px="xs" variant="filled">
+                        <Stack>
                             {concerns.map(concern => (
-                                <Accordion.Item key={concern.name} value={concern.name}>
-                                    <Accordion.Control
-                                        px={0}
-                                        icon={
-                                            <ThemeIcon size="sm" c="orange" variant="transparent">
-                                                <IconAlertTriangle />
-                                            </ThemeIcon>
-                                        }
-                                    >
-                                        <Text size="sm" c="orange">
-                                            {concern.summary}
-                                        </Text>
-                                    </Accordion.Control>
-                                    <Accordion.Panel>
-                                        <Markdown>
-                                            {concern.description}
-                                        </Markdown>
-                                    </Accordion.Panel>
-                                </Accordion.Item>
+                                <Alert
+                                    icon={<IconAlertTriangle size={16} />}
+                                    color="orange"
+                                    variant="transparent"
+                                    title={concern.summary}
+                                >
+                                    <Markdown>
+                                        {concern.description}
+                                    </Markdown>
+                                </Alert>
                             ))}
-                        </Accordion>
+                        </Stack>
                     )}
             </Stack>
         </Card>

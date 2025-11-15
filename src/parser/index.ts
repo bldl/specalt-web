@@ -6,6 +6,8 @@ import { Concern, Model, Proposition } from "../../lib/language/generated/ast";
 
 import { evaluate, Evaluator, lazyEvaluator, State, Value } from "./utils";
 
+export type ValueType = "string" | "boolean";
+
 export interface Given
 {
     value: Value;
@@ -19,6 +21,7 @@ export interface Tweakable
     name: string;
     expression: string;
 
+    type: ValueType;
     value: Evaluator<Value>;
     update: (value: Value) => void;
 
@@ -121,6 +124,7 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
             expression,
             defaultValue,
             allowedValues,
+            type: typeof defaultValue as ValueType,
             value: () => state.tweakables.get(name)!,
             update: val => state.tweakables.set(name, val),
             disable: () => evalauteDisable(tweakable, state),
