@@ -1,33 +1,19 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
+import Markdown from "react-markdown";
 
-import Markdown from "../components/markdown";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import { Alert, Card, CardProps, Code, Group, NativeSelect, Stack } from "@mantine/core";
 
-import {
-    Alert,
-    Badge,
-    Card,
-    CardProps,
-    Code,
-    Group,
-    NativeSelect,
-    rem,
-    ScrollArea,
-    Stack,
-    StackProps,
-    Title,
-} from "@mantine/core";
-
-import { evaluate } from "../parser/utils";
-import { Given, Laboratory, Tweakable } from "../parser";
+import { evaluate } from "../../parser/utils";
+import { Given, Tweakable } from "../../parser";
 
 export interface ItemProps extends Omit<CardProps, "withBorder">
 {
     item: Tweakable | Given;
-    notify?: () => void;
+    redraw?: () => void;
 }
 
-export function Item({ item, notify, ...props }: ItemProps)
+export function Item({ item, redraw, ...props }: ItemProps)
 {
     const { expression, value } = item;
 
@@ -42,7 +28,7 @@ export function Item({ item, notify, ...props }: ItemProps)
             item.update(item.type === "boolean" ? currentTarget.value === "true" : currentTarget.value);
         }
 
-        notify?.();
+        redraw?.();
     };
 
     return (
@@ -64,6 +50,7 @@ export function Item({ item, notify, ...props }: ItemProps)
                         <Stack>
                             {concerns.map(concern => (
                                 <Alert
+                                    key={concern.name}
                                     icon={<IconAlertTriangle size={16} />}
                                     color="orange"
                                     variant="transparent"
@@ -78,50 +65,5 @@ export function Item({ item, notify, ...props }: ItemProps)
                     )}
             </Stack>
         </Card>
-    );
-}
-
-export interface LabProps extends Omit<StackProps, "align">
-{
-    laboratory?: Laboratory;
-}
-
-export function Lab({ laboratory, ...props }: LabProps)
-{
-    if (!laboratory)
-    {
-        return <></>;
-    }
-
-    const [ver, setVer] = useState(0);
-    const { title, authors, description, tweakables, givens } = laboratory;
-
-    return (
-        <Stack align="center" {...props}>
-            {title && <Title>{title}</Title>}
-            <Group wrap="nowrap">
-                {authors?.map(author => <Badge mih={rem(25)} key={author}>{author}</Badge>)}
-            </Group>
-            {description && <Markdown>{description}</Markdown>}
-            <ScrollArea w="100%">
-                <Stack align="center" key={ver}>
-                    {givens.map(given => (
-                        <Item
-                            w="90%"
-                            item={given}
-                            key={given.expression}
-                        />
-                    ))}
-                    {tweakables.map(tweakable => (
-                        <Item
-                            w="90%"
-                            item={tweakable}
-                            key={tweakable.expression}
-                            notify={() => setVer(ver + 1)}
-                        />
-                    ))}
-                </Stack>
-            </ScrollArea>
-        </Stack>
     );
 }

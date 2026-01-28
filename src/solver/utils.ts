@@ -1,4 +1,5 @@
 import { collapse, Expression, getAllConditionsForRaises } from "../../lib/language/utils";
+import { loadSolver } from "../../solver/wasm/loader";
 import { Laboratory } from "../parser";
 import { Value } from "../parser/utils";
 
@@ -139,6 +140,12 @@ function mapRaiseConstraints({ input, laboratory, mappings }: State)
     }
 }
 
+export interface Input
+{
+    input: GeneratedInput;
+    mappings: Mapping;
+}
+
 export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
 {
     const input: GeneratedInput = {
@@ -182,4 +189,64 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
     input.objective = concerns.join("+");
 
     return { input, mappings };
+}
+
+const solver = await loadSolver();
+
+export function solveTweakables(lab: Laboratory, input: Input): boolean
+{
+    const constraints = new solver.VecString();
+
+    for (const constraint of input.input.constraints)
+    {
+        constraints.push_back(constraint);
+    }
+
+    const variables = new solver.VecString();
+
+    for (const variable of input.input.variables)
+    {
+        variables.push_back(variable);
+    }
+
+    const solution = solver.solve({
+        objective: input.input.objective,
+        variables,
+        constraints,
+    });
+
+    if (!solution.success)
+    {
+        return false;
+    }
+
+    const keys = solution.variables.keys();
+
+    for (let i = 0; keys.size() > i; ++i)
+    {
+        const key = keys.get(i)!;
+
+        if (!key.startsWith("x"))
+        {
+            continue;
+        }
+
+        const variable = solution.variables.get(key)!;
+
+        if (!variable)
+        {
+            continue;
+        }
+
+        const [tweakable, mapping] = [...input.mappings.propositions.entries()].find(
+            mapping => [...mapping[1].values()].includes(key),
+        )!;
+
+        const value = mapping.entries().find(x => x[1] === key)![0];
+        const tweak = lab.tweakables.find(x => x.name === tweakable)!;
+
+        tweak.update(value);
+    }
+
+    return true;
 }

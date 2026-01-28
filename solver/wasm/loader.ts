@@ -5,9 +5,11 @@ declare global
     const Module: EmscriptenModule;
 }
 
-export default function(path = "solver.js")
+export type Solver = EmbindModule;
+
+export function loadSolver(path = "solver.js")
 {
-    return new Promise<EmbindModule>((resolve, reject) =>
+    return new Promise<Solver>((resolve, reject) =>
     {
         const script = document.createElement("script");
 

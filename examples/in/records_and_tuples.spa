@@ -1,7 +1,6 @@
 laboratory {
 	title "Records and Tuples Laboratory 🔬"
 	description "🏗 Work in progress - [raise technical issue](https://github.com/acutmore/record-tuple-laboratory/issues/new)"
-	icon "./res/favicon.svg"
 	author "Ashley Claymore"
 	version "2"
 }

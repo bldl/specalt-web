@@ -8,10 +8,24 @@
   height: 100%;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
 .main {
+  width: 100%;
   height: calc(
     100vh - var(--app-shell-header-height, 0x) -
       var(--app-shell-footer-height, 0px) - var(--app-shell-padding) * 2
   );
-  width: 100%;
+
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.spoiler {
+  margin-left: 5px !important;
+  color: var(--mantine-color-dimmed) !important;
+  font-size: var(--mantine-font-size-xs) !important;
 }
