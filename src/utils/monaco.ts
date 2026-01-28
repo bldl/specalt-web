@@ -44,7 +44,7 @@ export const vscodeConfig: MonacoVscodeApiConfig = {
             contributes: {
                 languages: [{
                     id: "specalt",
-                    extensions: [".spa"],
+                    extensions: [".specalt"],
                     configuration: "/workspace/langium-configuration.json",
                 }],
                 grammars: [{

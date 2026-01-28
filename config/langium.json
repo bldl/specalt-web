@@ -5,7 +5,7 @@
     "textMate": {
       "out": "../syntaxes/specalt-format.tmLanguage.json"
     },
-    "fileExtensions": [".spa"],
+    "fileExtensions": [".specalt"],
     "grammar": "../lib/language/specalt.langium"
   }],
   "out": "../lib/language/generated"

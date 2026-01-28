@@ -35,10 +35,11 @@ import { Optimizer } from "../components/optimizer";
 import { Laboratory, parseLaboratory } from "../parser";
 import { currentSearch, Tab, updateSearch } from "../utils/search";
 
-import exampleCode from "../../examples/in/records_and_tuples.spa?raw";
 import { Input } from "../solver/utils";
 import { Debugger } from "../components/debug";
 import { notifications } from "@mantine/notifications";
+
+import exampleCode from "../../examples/in/records_and_tuples.specalt?raw";
 
 interface MainProps
 {
