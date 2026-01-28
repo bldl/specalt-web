@@ -67,10 +67,14 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
     const solve = () =>
     {
-        if (solveTweakables(lab, input))
+        const { success, message } = solveTweakables(lab, input);
+
+        if (success)
         {
             return redraw?.();
         }
+
+        console.error("Solver failed with", message);
 
         notifications.show({
             withBorder: true,
@@ -78,7 +82,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             color: "red",
             title: "Oh no!",
             icon: <IconBug size={16} />,
-            message: "The solver failed. Please check the console for more information!",
+            message: `The solver failed with: ${message}`,
         });
     };
 

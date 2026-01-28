@@ -193,7 +193,13 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
 
 const solver = await loadSolver();
 
-export function solveTweakables(lab: Laboratory, input: Input): boolean
+export interface Solution
+{
+    success: boolean;
+    message?: string;
+}
+
+export function solveTweakables(lab: Laboratory, input: Input): Solution
 {
     const constraints = new solver.VecString();
 
@@ -217,7 +223,7 @@ export function solveTweakables(lab: Laboratory, input: Input): boolean
 
     if (!solution.success)
     {
-        return false;
+        return { success: false, message: solution.message.toString() };
     }
 
     const keys = solution.variables.keys();
@@ -248,5 +254,5 @@ export function solveTweakables(lab: Laboratory, input: Input): boolean
         tweak.update(value);
     }
 
-    return true;
+    return { success: true };
 }
