@@ -104,7 +104,7 @@ export function Root()
     {
         mutex.runExclusive(() =>
             parseLaboratory(value).then(
-                result => result.andTee(setLab).orTee(() => setLab(undefined)),
+                result => result.andTee(setLab),
             )
         );
 
