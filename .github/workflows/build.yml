@@ -13,14 +13,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: arch-linux:latest
+    container: archlinux:latest
 
     steps:
+      - name: Install Dependencies (Base, Solver)
+        run: pacman -S git emscripten cmake ninja nodejs pnpm
+
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install Dependencies (Solver)
-        run: pacman -S emscripten cmake ninja nodejs pnpm
 
       - name: Build Solver 
         run: cd solver && emcmake cmake -B build -G Ninja && cmake --build build -j$(nproc)
