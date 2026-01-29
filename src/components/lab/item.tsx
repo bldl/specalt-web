@@ -2,7 +2,7 @@ import { ChangeEvent } from "react";
 import Markdown from "react-markdown";
 
 import { IconAlertTriangle } from "@tabler/icons-react";
-import { Alert, Card, CardProps, Code, Group, NativeSelect, Stack } from "@mantine/core";
+import { Alert, Card, CardProps, Code, Group, NativeSelect, Stack, Text } from "@mantine/core";
 
 import { evaluate } from "../../parser/utils";
 import { Given, Tweakable } from "../../parser";
@@ -17,7 +17,7 @@ export function Item({ item, redraw, ...props }: ItemProps)
 {
     const { expression, value } = item;
 
-    const disable = "disable" in item ? evaluate(item.disable) : true;
+    const disable = "disable" in item ? evaluate(item.disable) : { value: false, message: "" };
     const concerns = "concerns" in item ? evaluate(item.concerns) : [];
     const allowedValues = "allowedValues" in item ? item.allowedValues.map(value => `${value}`) : [`${item.value}`];
 
@@ -35,16 +35,21 @@ export function Item({ item, redraw, ...props }: ItemProps)
         <Card withBorder {...props}>
             <Stack>
                 <Group wrap="nowrap" justify="space-between">
-                    <Code>
+                    <Code td={disable.value ? "line-through" : undefined}>
                         {expression}
                     </Code>
                     <NativeSelect
                         onChange={update}
-                        disabled={disable}
+                        disabled={disable.value}
                         data={allowedValues}
                         value={`${evaluate(value)}`}
                     />
                 </Group>
+                {disable.message && (
+                    <Text c="dimmed" size="xs">
+                        Disabled due to: <Code>{disable.message}</Code>
+                    </Text>
+                )}
                 {concerns.length > 0
                     && (
                         <Stack>

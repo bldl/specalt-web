@@ -14,6 +14,12 @@ export interface Given
     expression: string;
 }
 
+export interface DisableInfo
+{
+    value: boolean;
+    message: string;
+}
+
 export interface Tweakable
 {
     raw: Proposition;
@@ -28,7 +34,7 @@ export interface Tweakable
     defaultValue: Value;
     allowedValues: Value[];
 
-    disable: Evaluator;
+    disable: Evaluator<DisableInfo>;
     concerns: Evaluator<Concern[]>;
 }
 
@@ -63,9 +69,9 @@ function evaluateConcerns({ name, valueClauses }: Proposition, state: State)
     return rtn;
 }
 
-function evalauteDisable({ disable }: Proposition, state: State)
+function evalauteDisable({ disable }: Proposition, state: State): DisableInfo
 {
-    for (const { condition } of disable?.statements ?? [])
+    for (const { condition, message } of disable?.statements ?? [])
     {
         const expr = lazyEvaluator.fromExpression(condition.expression, state);
 
@@ -74,10 +80,10 @@ function evalauteDisable({ disable }: Proposition, state: State)
             continue;
         }
 
-        return true;
+        return { value: true, message };
     }
 
-    return false;
+    return { value: false, message: "" };
 }
 
 export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
