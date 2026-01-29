@@ -5,6 +5,7 @@ import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: "specalt-web",
     plugins: [react()],
     optimizeDeps: {
         esbuildOptions: {
@@ -15,5 +16,8 @@ export default defineConfig({
     },
     resolve: {
         dedupe: ["vscode"],
+    },
+    worker: {
+        format: "es",
     },
 });
