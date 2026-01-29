@@ -20,8 +20,8 @@ jobs:
       - name: Install Dependencies (Solver)
         run: sudo apt install cmake emscripten clang ninja-build
 
-      - name: Build Solver
-        run: cd solver && cmake -B build && cmake --build build -j$(nproc)
+      - name: Build Solver 
+        run: cd solver && cmake -B build -G Ninja && cmake --build build -j$(nproc)
 
       - uses: pnpm/action-setup@v4
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Install Dependencies (Frontend)
         run: "pnpm i"
 
-      - name: Build with Next.js
+      - name: Build Frontend
         run: "pnpm run build" 
 
       - name: Upload artifact
