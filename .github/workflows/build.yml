@@ -13,19 +13,17 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: arch-linux:latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Dependencies (Solver)
-        run: sudo apt install cmake emscripten clang ninja-build
+        run: pacman -S emscripten cmake ninja nodejs pnpm
 
       - name: Build Solver 
         run: cd solver && emcmake cmake -B build -G Ninja && cmake --build build -j$(nproc)
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
