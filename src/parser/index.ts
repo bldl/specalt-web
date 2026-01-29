@@ -124,8 +124,6 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         const defaultValue = valueClauses.find(item => item.default)!.value;
         const allowedValues = valueClauses.map(item => item.value);
 
-        console.log(tweakable);
-
         tweakables.push({
             raw: tweakable,
             name,
