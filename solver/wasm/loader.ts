@@ -31,7 +31,7 @@ export function loadSolver(path = "solver.js")
             reject(`Failed to load script (${event}): ${source}`);
         };
 
-        script.src = path;
+        script.src = `${window.location.pathname}/${path}`;
 
         document.head.appendChild(script);
     });
