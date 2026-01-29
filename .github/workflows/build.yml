@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Solver 
-        run: cd solver && emcmake cmake -B build -G Ninja && cmake --build build -j$(nproc)
+        run: cd solver &&  /usr/lib/emscripten/emcmake cmake -B build -G Ninja && cmake --build build -j$(nproc)
 
       - name: Setup Node
         uses: actions/setup-node@v4
