@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Install Dependencies (Base, Solver)
-        run: pacman -S git emscripten cmake ninja nodejs pnpm
+        run: pacman -Syu git emscripten cmake ninja nodejs pnpm
 
       - name: Checkout
         uses: actions/checkout@v4
