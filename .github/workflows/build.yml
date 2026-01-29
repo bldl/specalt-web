@@ -17,6 +17,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Dependencies (Solver)
+        run: apt install cmake emscripten clang
+
+      - name: Build Solver
+        run: cd solver && cmake -B build && cmake --build build
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -29,7 +35,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Install dependencies
+      - name: Install Dependencies (Frontend)
         run: "pnpm i"
 
       - name: Build with Next.js
