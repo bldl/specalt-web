@@ -104,10 +104,11 @@ export function Root()
     {
         mutex.runExclusive(() =>
             parseLaboratory(value).then(
-                result => result.andTee(setLab),
+                result => result.andTee(setLab).orTee(() => setLab(undefined)),
             )
         );
 
+        setLastDraft(value);
         save("draft", value);
         updateSearch({ url: "" });
     };
