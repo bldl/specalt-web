@@ -17,7 +17,7 @@ export function Item({ item, redraw, ...props }: ItemProps)
 {
     const { expression, value } = item;
 
-    const disable = "disable" in item ? evaluate(item.disable) : { value: false, message: "" };
+    const disable = "disable" in item ? evaluate(item.disable) : { value: true, message: "" };
     const concerns = "concerns" in item ? evaluate(item.concerns) : [];
     const allowedValues = "allowedValues" in item ? item.allowedValues.map(value => `${value}`) : [`${item.value}`];
 
@@ -35,7 +35,7 @@ export function Item({ item, redraw, ...props }: ItemProps)
         <Card withBorder {...props}>
             <Stack>
                 <Group wrap="nowrap" justify="space-between">
-                    <Code td={disable.value ? "line-through" : undefined}>
+                    <Code td={disable.message ? "line-through" : undefined}>
                         {expression}
                     </Code>
                     <NativeSelect

@@ -69,7 +69,7 @@ function evaluateConcerns({ name, valueClauses }: Proposition, state: State)
     return rtn;
 }
 
-function evalauteDisable({ disable }: Proposition, state: State): DisableInfo
+function evaluateDisable({ disable }: Proposition, state: State): DisableInfo
 {
     for (const { condition, message } of disable?.statements ?? [])
     {
@@ -124,6 +124,8 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         const defaultValue = valueClauses.find(item => item.default)!.value;
         const allowedValues = valueClauses.map(item => item.value);
 
+        console.log(tweakable);
+
         tweakables.push({
             raw: tweakable,
             name,
@@ -133,8 +135,8 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
             type: typeof defaultValue as ValueType,
             value: () => state.tweakables.get(name)!,
             update: val => state.tweakables.set(name, val),
-            disable: () => evalauteDisable(tweakable, state),
-            concerns: () => evalauteDisable(tweakable, state) ? [] : evaluateConcerns(tweakable, state),
+            disable: () => evaluateDisable(tweakable, state),
+            concerns: () => evaluateDisable(tweakable, state).value ? [] : evaluateConcerns(tweakable, state),
         });
 
         state.tweakables.set(name, defaultValue);
