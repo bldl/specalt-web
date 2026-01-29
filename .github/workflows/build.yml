@@ -21,7 +21,7 @@ jobs:
         run: sudo apt install cmake emscripten clang ninja-build
 
       - name: Build Solver 
-        run: cd solver && emcmake cmake -B build -G Ninja && emcmake cmake --build build -j$(nproc)
+        run: cd solver && emcmake cmake -B build -G Ninja && cmake --build build -j$(nproc)
 
       - uses: pnpm/action-setup@v4
         with:
