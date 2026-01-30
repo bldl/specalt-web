@@ -16,7 +16,7 @@ import {
 
 import Markdown from "react-markdown";
 import { notifications } from "@mantine/notifications";
-import { IconBug, IconSend2 } from "@tabler/icons-react";
+import { IconBug, IconLoader, IconSend2 } from "@tabler/icons-react";
 
 import { Error } from "./error";
 import { ParsedLab } from "../pages";
@@ -70,6 +70,9 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
     {
         const id = notifications.show({
             loading: true,
+            withBorder: true,
+            position: "top-right",
+            icon: <IconLoader size={16} />,
             title: "Crunching the Numbers!",
             message: "Please wait, this might take a second...",
             autoClose: false,
