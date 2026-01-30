@@ -66,9 +66,19 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
         updateSearch({ weights: Object.fromEntries(weights) });
     };
 
-    const solve = () =>
+    const solve = async () =>
     {
-        const { success, message } = solveTweakables(lab.last!, input);
+        const id = notifications.show({
+            loading: true,
+            title: "Crunching the Numbers!",
+            message: "Please wait, this might take a second...",
+            autoClose: false,
+            withCloseButton: false,
+        });
+
+        const { success, message } = await solveTweakables(lab.last!, input);
+
+        notifications.hide(id);
 
         if (success)
         {

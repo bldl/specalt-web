@@ -191,7 +191,7 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
     return { input, mappings };
 }
 
-const solver = await loadSolver();
+const solverPromise = loadSolver();
 
 export interface Solution
 {
@@ -199,8 +199,9 @@ export interface Solution
     message?: string;
 }
 
-export function solveTweakables(lab: Laboratory, input: Input): Solution
+export async function solveTweakables(lab: Laboratory, input: Input): Promise<Solution>
 {
+    const solver = await solverPromise;
     const constraints = new solver.VecString();
 
     for (const constraint of input.input.constraints)
