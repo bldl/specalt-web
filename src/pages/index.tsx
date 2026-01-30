@@ -39,7 +39,7 @@ import { Input } from "../solver/utils";
 import { Debugger } from "../components/debug";
 import { notifications } from "@mantine/notifications";
 
-import exampleCode from "../../examples/in/records_and_tuples.specalt?raw";
+import exampleCode from "../../examples/records_and_tuples.specalt?raw";
 
 interface MainProps
 {
