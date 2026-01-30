@@ -19,13 +19,14 @@ import { notifications } from "@mantine/notifications";
 import { IconBug, IconSend2 } from "@tabler/icons-react";
 
 import { Error } from "./error";
+import { ParsedLab } from "../pages";
 import { Laboratory } from "../parser";
 import { currentSearch, SerializedWeights, updateSearch } from "../utils/search";
 import { Input, makeInput, solveTweakables } from "../solver/utils";
 
 export interface OptimizerProps extends StackProps
 {
-    lab?: Laboratory;
+    lab: ParsedLab;
     redraw?: () => void;
     updateInput: (value: Input) => void;
 }
@@ -38,24 +39,24 @@ function allowedWeights(lab: Laboratory, weights?: SerializedWeights): weights i
 
 export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps)
 {
-    if (!lab)
+    if (!lab.last)
     {
-        return <Error {...props} />;
+        return <Error kind="missing" {...props} />;
     }
 
     const current = currentSearch();
 
     const [weights, setWeights] = useState(
-        allowedWeights(lab, current.weights)
+        allowedWeights(lab.last, current.weights)
             ? new Map(Object.entries(current.weights))
             : new Map(
-                lab.concerns.values().map(
+                lab.last.concerns.values().map(
                     concern => [concern.name, 1 as number] as const,
                 ),
             ),
     );
 
-    const input = useMemo(() => makeInput(lab, weights), [lab, weights]);
+    const input = useMemo(() => makeInput(lab.last!, weights), [lab, weights]);
     useEffect(() => updateInput(input), [input]);
 
     const update = (name: string, value: number) =>
@@ -67,7 +68,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
     const solve = () =>
     {
-        const { success, message } = solveTweakables(lab, input);
+        const { success, message } = solveTweakables(lab.last!, input);
 
         if (success)
         {
@@ -88,6 +89,8 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
     return (
         <Stack {...props}>
+            {!lab.success && <Error kind="outdated" />}
+
             <Title ta="center">
                 Optimize
             </Title>
@@ -119,7 +122,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
                                     showLabel="Show Description"
                                 >
                                     <Markdown>
-                                        {lab.concerns.get(name)!.description}
+                                        {lab.last!.concerns.get(name)!.description}
                                     </Markdown>
                                 </Spoiler>
                             </Stack>

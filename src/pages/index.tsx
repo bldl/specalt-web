@@ -44,7 +44,7 @@ import exampleCode from "../../examples/records_and_tuples.specalt?raw";
 interface MainProps
 {
     tab: Tab;
-    lab?: Laboratory;
+    lab: ParsedLab;
     lastDraft: string;
     updateLab: (value: string) => void;
 }
@@ -86,6 +86,12 @@ function Main({ tab, lab, lastDraft, updateLab }: MainProps)
 const mutex = new Mutex();
 const setLocalStorage = fromThrowable((key: string, value: string) => localStorage.setItem(key, value), e => e);
 
+export interface ParsedLab
+{
+    last?: Laboratory;
+    success: boolean;
+}
+
 export function Root()
 {
     const search = currentSearch();
@@ -95,7 +101,7 @@ export function Root()
     const [opened, { open, close }] = useDisclosure(false);
 
     const [tab, setTab] = useState<Tab>(currentSearch().tab ?? "editor");
-    const [lab, setLab] = useState<Laboratory | undefined>();
+    const [lab, setLab] = useState<ParsedLab>({ success: true });
 
     const save = useDebouncedCallback(setLocalStorage, 1000);
     const [lastDraft, setLastDraft] = useState<string | undefined>();
@@ -104,7 +110,11 @@ export function Root()
     {
         mutex.runExclusive(() =>
             parseLaboratory(value).then(
-                result => result.andTee(setLab),
+                result =>
+                    setLab(prev => ({
+                        last: result.unwrapOr(prev.last),
+                        success: result.isOk(),
+                    })),
             )
         );
 

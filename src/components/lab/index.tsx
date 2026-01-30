@@ -4,26 +4,28 @@ import { Badge, Group, rem, ScrollArea, Stack, StackProps, Title } from "@mantin
 
 import { Item } from "./item";
 import { Error } from "../error";
-import { Laboratory } from "../../parser";
+import { ParsedLab } from "../../pages";
 
 export interface LabProps extends Omit<StackProps, "align">
 {
     drawId: number;
-    lab?: Laboratory;
+    lab: ParsedLab;
     redraw: () => void;
 }
 
 export function Lab({ lab, redraw, drawId, ...props }: LabProps)
 {
-    if (!lab)
+    if (!lab.last)
     {
-        return <Error {...props} />;
+        return <Error kind="missing" {...props} />;
     }
 
-    const { title, authors, description, tweakables, givens } = lab;
+    const { title, authors, description, tweakables, givens } = lab.last;
 
     return (
         <Stack align="center" {...props}>
+            {!lab.success && <Error kind="outdated" />}
+
             {title && <Title>{title}</Title>}
 
             <Group wrap="nowrap">
