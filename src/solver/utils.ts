@@ -1,6 +1,6 @@
 import { collapse, Expression, getAllConditionsForRaises } from "../../lib/language/utils";
 import { loadSolver } from "../../solver/wasm/loader";
-import { Laboratory, Tweakable } from "../parser";
+import { Laboratory } from "../parser";
 import { Value } from "../parser/utils";
 
 export interface GeneratedInput
@@ -21,7 +21,6 @@ interface State
     mappings: Mapping;
     input: GeneratedInput;
     laboratory: Laboratory;
-    propositions: Tweakable[];
 }
 
 type VarGen = Generator<string, never>;
@@ -38,11 +37,11 @@ function* variable(prefix: string, input: GeneratedInput): VarGen
     }
 }
 
-function mapTweakableValues({ input, propositions, mappings }: State)
+function mapPropositions({ input, laboratory, mappings }: State)
 {
     const x = variable("x", input);
 
-    for (const tweakable of propositions)
+    for (const tweakable of laboratory.propositions)
     {
         const mapping = new Map<Value, string>();
 
@@ -175,10 +174,9 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
         input,
         mappings,
         laboratory,
-        propositions: [...laboratory.tweakables, ...laboratory.givens],
     };
 
-    mapTweakableValues(state);
+    mapPropositions(state);
     mapConcerns(state);
 
     mapTweakableConstraints(state);

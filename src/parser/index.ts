@@ -40,7 +40,9 @@ export interface Laboratory
     authors?: string[];
     description?: string;
 
+    propositions: Tweakable[];
     concerns: Map<string, Concern>;
+
     givens: Tweakable[];
     tweakables: Tweakable[];
 }
@@ -144,6 +146,7 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         authors: laboratory?.authors,
         description: laboratory?.description,
         version: laboratory?.version,
+        propositions: [...givens, ...tweakables],
         concerns,
         givens,
         tweakables,
