@@ -1,0 +1,52 @@
+laboratory {
+    title   "Division by Zero Laboratory"
+    version "1"
+    author  "Foo Bar"
+}
+
+issue silentCorruption {
+    summary
+        "result is quietly wrong"
+    description
+        "Returning a value like Infinity or NaN instead of throwing means incorrect results propagate undetected"
+}
+
+issue mustHandleError {
+    summary
+        "forced error handling"
+    description
+        "If division by zero throws, every division site must be wrapped in error handling even when zero is never expected"
+}
+
+issue typeofPowerfulObjectIsNotObject {
+    summary
+        "typeof a special value does not return \"object\""
+    description
+        "Infinity is a powerful, non-finite numeric sentinel that behaves unlike ordinary numbers - yet typeof Infinity returns `number` rather than a dedicated type like `infinity`.
+        When a distinct value warrants special-casing in nearly every context it appears in, returning a generic type obscures that distinction and forces callers to add a secondary
+        `isFinite()` or `=== Infinity` check after every typeof guard."
+}
+
+tweakable divideByZero {
+    expression "1 / 0"
+    default value "Infinity" {
+        raise silentCorruption
+    }
+    value "throws" {
+        raise mustHandleError
+    }
+    value "NaN" {
+        raise silentCorruption
+    }
+}
+
+tweakable typeofInfinity {
+    expression "typeof Infinity"
+    default value "number"  {
+        raise typeofPowerfulObjectIsNotObject
+    }
+    value "infinity" {}
+    disabled {
+        message "Infinity is not produced" when divideByZero is not "Infinity"
+    }
+}
