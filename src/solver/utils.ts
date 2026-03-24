@@ -211,7 +211,7 @@ export type Solution =
     }
     | {
         success: true;
-        next: string[];
+        next: string;
     };
 
 export async function solveTweakables(lab: Laboratory, input: Input, additional?: string[]): Promise<Solution>
@@ -248,7 +248,9 @@ export async function solveTweakables(lab: Laboratory, input: Input, additional?
     }
 
     const keys = solution.variables.keys();
-    const next = [] as string[];
+
+    const plus = [] as string[];
+    const minus = [] as string[];
 
     for (let i = 0; keys.size() > i; ++i)
     {
@@ -278,9 +280,16 @@ export async function solveTweakables(lab: Laboratory, input: Input, additional?
             continue;
         }
 
+        if (variable)
+        {
+            plus.push(key);
+        } else
+        {
+            minus.push(key);
+        }
+
         tweak.update(value);
-        next.push(`${key} == ${variable ? "0" : "1"}`);
     }
 
-    return { success: true, next };
+    return { success: true, next: `${plus.join(" + ") || "0"} - ${minus.join(" - ") || "0"} <= ${plus.length - 1}` };
 }
