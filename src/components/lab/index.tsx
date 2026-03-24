@@ -1,4 +1,4 @@
-import Markdown from "react-markdown";
+import Markdown from "../markdown";
 
 import { Badge, Group, rem, ScrollArea, Stack, StackProps, Title } from "@mantine/core";
 

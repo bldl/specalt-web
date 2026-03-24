@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import Markdown from "react-markdown";
+import Markdown from "../markdown";
 
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { Alert, Card, CardProps, Code, Group, NativeSelect, Stack, Text } from "@mantine/core";

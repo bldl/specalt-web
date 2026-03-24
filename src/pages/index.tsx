@@ -11,6 +11,7 @@ import {
     Stack,
     Text,
     TextInput,
+    Title,
 } from "@mantine/core";
 import {
     IconBrain,
@@ -19,6 +20,7 @@ import {
     IconCheck,
     IconCode,
     IconEye,
+    IconInfoCircle,
     IconShare,
     IconShare3,
     IconTestPipe,
@@ -39,7 +41,7 @@ import { Input } from "../solver/utils";
 import { Debugger } from "../components/debug";
 import { notifications } from "@mantine/notifications";
 
-import exampleCode from "../../examples/records_and_tuples.specalt?raw";
+import exampleCode from "../../examples/basic.specalt?raw";
 
 interface MainProps
 {
@@ -97,8 +99,10 @@ export function Root()
     const search = currentSearch();
     const clipboard = useClipboard();
 
+    const [aboutOpened, { open: openAbout, close: closeAbout }] = useDisclosure(false);
+
     const [share, setShare] = useState("");
-    const [opened, { open, close }] = useDisclosure(false);
+    const [shareOpened, { open: openShare, close: closeShare }] = useDisclosure(false);
 
     const [tab, setTab] = useState<Tab>(currentSearch().tab ?? "editor");
     const [lab, setLab] = useState<ParsedLab>({ success: true });
@@ -177,7 +181,37 @@ export function Root()
 
     return (
         <AppShell padding="md" header={{ height: 60 }}>
-            <Modal opened={opened} onClose={close} centered>
+            <Modal title={<Title order={4}>About</Title>} opened={aboutOpened} onClose={closeAbout} centered>
+                <Stack>
+                    <Text>
+                        This tool started as a Research Project lead by{" "}
+                        <a href="https://github.com/mikbar-uib">Mikhail Barash</a>.
+                    </Text>
+                    <Text>
+                        You can find the research paper here:{" "}
+                        <a href="https://dl.acm.org/doi/10.1145/3732771.3742715">
+                            "Optimal Language Design is Hard: A Case Study in ECMAScript (JavaScript) Standardization"
+                        </a>
+                    </Text>
+                    <Text>
+                        The initial version of this tool was called "JSPL" and was published to the{" "}
+                        <a href="https://marketplace.visualstudio.com/items?itemName=PhilippRiemer.jspl-javascript-propositional-laboratory">
+                            Visual Studio Code Marketplace
+                        </a>{" "}
+                        by an author of the aforementioned paper,{" "}
+                        <a href="https://philipp-riemer.de/">Philipp Riemer</a>.
+                    </Text>
+                    <Text>
+                        The Extension was later ported to the web by <a href="https://github.com/Curve">Noah Karnel</a>.
+                    </Text>
+                    <Group justify="flex-end">
+                        <Button variant="default" onClick={closeAbout}>
+                            Close
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
+            <Modal title={<Title order={4}>Share</Title>} opened={shareOpened} onClose={closeShare} centered>
                 <Stack>
                     <Text>
                         As SpecAlt is served via GitHub Pages and runs entirely in the browser (without any backend), it
@@ -209,9 +243,6 @@ export function Root()
                         <IconTestPipe />
                         <Text fw="bolOptimizeder">
                             SpecAlt
-                        </Text>
-                        <Text c="dimmed" fs="italic" visibleFrom="md">
-                            - The JavaScript Proposal Laboratory
                         </Text>
                     </Group>
                     <SegmentedControl
@@ -259,8 +290,15 @@ export function Root()
                     />
                     <Group justify="flex-end" style={{ flexGrow: 1, flexBasis: 0 }}>
                         <ActionIcon
+                            color="blue"
+                            onClick={openAbout}
+                            variant="light"
+                        >
+                            <IconInfoCircle size={16} />
+                        </ActionIcon>
+                        <ActionIcon
                             color="lime"
-                            onClick={open}
+                            onClick={openShare}
                             variant="light"
                         >
                             <IconShare3 size={16} />

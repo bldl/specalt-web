@@ -14,9 +14,9 @@ import {
     Title,
 } from "@mantine/core";
 
-import Markdown from "react-markdown";
+import Markdown from "./markdown";
 import { notifications } from "@mantine/notifications";
-import { IconBug, IconLoader, IconSend2 } from "@tabler/icons-react";
+import { IconBug, IconCheck, IconLoader, IconSend2 } from "@tabler/icons-react";
 
 import { Error } from "./error";
 import { ParsedLab } from "../pages";
@@ -85,6 +85,15 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
         if (success)
         {
+            notifications.show({
+                withBorder: true,
+                position: "top-right",
+                color: "green",
+                title: "Success!",
+                icon: <IconCheck size={16} />,
+                message: "The tweakables have been updated",
+            });
+
             return redraw?.();
         }
 
@@ -135,7 +144,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
                                     showLabel="Show Description"
                                 >
                                     <Markdown>
-                                        {lab.last!.concerns.get(name)!.description}
+                                        {lab.last?.concerns.get(name)?.description}
                                     </Markdown>
                                 </Spoiler>
                             </Stack>
