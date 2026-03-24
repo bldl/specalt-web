@@ -8,12 +8,6 @@ import { evaluate, Evaluator, lazyEvaluator, State, Value } from "./utils";
 
 export type ValueType = "string" | "boolean";
 
-export interface Given
-{
-    value: Value;
-    expression: string;
-}
-
 export interface DisableInfo
 {
     value: boolean;
@@ -47,7 +41,7 @@ export interface Laboratory
     description?: string;
 
     concerns: Map<string, Concern>;
-    givens: Given[];
+    givens: Tweakable[];
     tweakables: Tweakable[];
 }
 
@@ -102,7 +96,7 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         conditions: new Map(),
     };
 
-    const givens: Given[] = [];
+    const givens: Tweakable[] = [];
     const tweakables: Tweakable[] = [];
 
     for (const { name, condition } of conditions)
@@ -110,21 +104,14 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
         state.conditions.set(name, lazyEvaluator.fromExpression(condition.expression, state));
     }
 
-    for (const { name, expression, valueClauses } of propositions.filter(item => item.valueClauses.length === 1))
-    {
-        const value = valueClauses[0].value;
-        givens.push({ expression, value });
-        state.tweakables.set(name, value);
-    }
-
-    for (const tweakable of propositions.filter(item => item.valueClauses.length !== 1))
+    for (const tweakable of propositions)
     {
         const { name, expression, valueClauses } = tweakable;
 
         const defaultValue = valueClauses.find(item => item.default)!.value;
         const allowedValues = valueClauses.map(item => item.value);
 
-        tweakables.push({
+        const create: Tweakable = {
             raw: tweakable,
             name,
             expression,
@@ -135,7 +122,15 @@ export async function parseLaboratory(input: string): Promise<Res<Laboratory>>
             update: val => state.tweakables.set(name, val),
             disable: () => evaluateDisable(tweakable, state),
             concerns: () => evaluateDisable(tweakable, state).value ? [] : evaluateConcerns(tweakable, state),
-        });
+        };
+
+        if (tweakable.valueClauses.length === 1)
+        {
+            givens.push(create);
+        } else
+        {
+            tweakables.push(create);
+        }
 
         state.tweakables.set(name, defaultValue);
     }

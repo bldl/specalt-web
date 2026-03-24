@@ -5,11 +5,11 @@ import { IconAlertTriangle } from "@tabler/icons-react";
 import { Alert, Card, CardProps, Code, Group, NativeSelect, Stack, Text } from "@mantine/core";
 
 import { evaluate } from "../../parser/utils";
-import { Given, Tweakable } from "../../parser";
+import { Tweakable } from "../../parser";
 
 export interface ItemProps extends Omit<CardProps, "withBorder">
 {
-    item: Tweakable | Given;
+    item: Tweakable;
     redraw?: () => void;
 }
 
@@ -19,7 +19,7 @@ export function Item({ item, redraw, ...props }: ItemProps)
 
     const disable = "disable" in item ? evaluate(item.disable) : { value: true, message: "" };
     const concerns = "concerns" in item ? evaluate(item.concerns) : [];
-    const allowedValues = "allowedValues" in item ? item.allowedValues.map(value => `${value}`) : [`${item.value}`];
+    const allowedValues = item.allowedValues.map(value => `${value}`);
 
     const update = ({ currentTarget }: ChangeEvent<HTMLSelectElement>) =>
     {
@@ -40,7 +40,7 @@ export function Item({ item, redraw, ...props }: ItemProps)
                     </Code>
                     <NativeSelect
                         onChange={update}
-                        disabled={disable.value}
+                        disabled={disable.value || allowedValues.length === 1}
                         data={allowedValues}
                         value={`${evaluate(value)}`}
                     />

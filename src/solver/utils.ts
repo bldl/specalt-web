@@ -1,6 +1,6 @@
 import { collapse, Expression, getAllConditionsForRaises } from "../../lib/language/utils";
 import { loadSolver } from "../../solver/wasm/loader";
-import { Laboratory } from "../parser";
+import { Laboratory, Tweakable } from "../parser";
 import { Value } from "../parser/utils";
 
 export interface GeneratedInput
@@ -21,6 +21,7 @@ interface State
     mappings: Mapping;
     input: GeneratedInput;
     laboratory: Laboratory;
+    propositions: Tweakable[];
 }
 
 type VarGen = Generator<string, never>;
@@ -37,11 +38,11 @@ function* variable(prefix: string, input: GeneratedInput): VarGen
     }
 }
 
-function mapTweakableValues({ input, laboratory, mappings }: State)
+function mapTweakableValues({ input, propositions, mappings }: State)
 {
     const x = variable("x", input);
 
-    for (const tweakable of laboratory.tweakables)
+    for (const tweakable of propositions)
     {
         const mapping = new Map<Value, string>();
 
@@ -115,20 +116,20 @@ function buildRaiseConstraint(input: GeneratedInput, mappings: Mapping, expr: Ex
         {
             const ref = expr.reference.ref!;
 
+            if (expr.negation)
+            {
+                // It is a little unfortunate that the parser does not
+                // simply put this into a Negation node, but we can
+                // do it ourselves here...
+                return buildRaiseConstraint(input, mappings, {
+                    $type: "Negation",
+                    inner: { ...expr, negation: false },
+                }, zGen);
+            }
+
             return ref.$type === "Proposition"
                 ? mappings.propositions.get(ref.name)!.get(expr.value)!
                 : buildRaiseConstraint(input, mappings, ref.condition.expression, zGen); // Just inline conditions
-
-            // This is ugly. We to get a nice tree to avoid this...
-            if (expr.negation)
-            {
-                const z = zGen.next().value;
-                input.constraints.push(`-${base}-${z} <= -1`);
-                input.constraints.push(`${base}+${z} <= 1`);
-                return z;
-            }
-
-            return base;
         }
         case "Group":
             return buildRaiseConstraint(input, mappings, expr.inner, zGen);
@@ -172,8 +173,9 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
 
     const state: State = {
         input,
-        laboratory,
         mappings,
+        laboratory,
+        propositions: [...laboratory.tweakables, ...laboratory.givens],
     };
 
     mapTweakableValues(state);
