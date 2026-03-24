@@ -118,6 +118,17 @@ function buildRaiseConstraint(input: GeneratedInput, mappings: Mapping, expr: Ex
             return ref.$type === "Proposition"
                 ? mappings.propositions.get(ref.name)!.get(expr.value)!
                 : buildRaiseConstraint(input, mappings, ref.condition.expression, zGen); // Just inline conditions
+
+            // This is ugly. We to get a nice tree to avoid this...
+            if (expr.negation)
+            {
+                const z = zGen.next().value;
+                input.constraints.push(`-${base}-${z} <= -1`);
+                input.constraints.push(`${base}+${z} <= 1`);
+                return z;
+            }
+
+            return base;
         }
         case "Group":
             return buildRaiseConstraint(input, mappings, expr.inner, zGen);
