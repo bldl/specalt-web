@@ -5,6 +5,7 @@ import { Badge, Group, rem, ScrollArea, Stack, StackProps, Title } from "@mantin
 import { Item } from "./item";
 import { Error } from "../error";
 import { ParsedLab } from "../../pages";
+import { evaluate } from "../../parser/utils";
 
 export interface LabProps extends Omit<StackProps, "align">
 {
@@ -20,7 +21,10 @@ export function Lab({ lab, redraw, drawId, ...props }: LabProps)
         return <Error kind="missing" {...props} />;
     }
 
-    const { title, authors, description, tweakables, givens } = lab.last;
+    const { title, authors, description, tweakables, givens, propositions } = lab.last;
+    const concerns = evaluate(propositions.flatMap(prop => prop.concerns()));
+
+    console.log(concerns);
 
     return (
         <Stack align="center" {...props}>
@@ -37,6 +41,12 @@ export function Lab({ lab, redraw, drawId, ...props }: LabProps)
                         {author}
                     </Badge>
                 ))}
+                <Badge
+                    color={concerns.length > 1 ? "red" : "green"}
+                    mih={rem(25)}
+                >
+                    Active Concerns: {concerns.length}
+                </Badge>
             </Group>
 
             {description && <Markdown>{description}</Markdown>}

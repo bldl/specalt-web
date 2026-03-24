@@ -16,7 +16,7 @@ import {
 
 import Markdown from "./markdown";
 import { notifications } from "@mantine/notifications";
-import { IconBug, IconCheck, IconLoader, IconSend2 } from "@tabler/icons-react";
+import { IconBug, IconCheck, IconClearAll, IconLoader, IconSend2 } from "@tabler/icons-react";
 
 import { Error } from "./error";
 import { ParsedLab } from "../pages";
@@ -85,6 +85,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             withCloseButton: false,
         });
 
+        console.log(ignore);
         const solution = await solveTweakables(lab.last!, input, ignore);
         notifications.hide(id);
 
@@ -113,7 +114,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             message: "The tweakables have been updated",
         });
 
-        setIgnore([...ignore, ...solution.next]);
+        setIgnore([...ignore, solution.next]);
 
         redraw?.();
     };
@@ -163,6 +164,15 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             </ScrollArea>
 
             <Group justify="flex-end">
+                {ignore.length > 0 && (
+                    <Button
+                        leftSection={<IconClearAll size={16} />}
+                        onClick={() => setIgnore([])}
+                        variant="default"
+                    >
+                        Forget seen solutions
+                    </Button>
+                )}
                 <Button leftSection={<IconSend2 size={16} />} onClick={solve}>
                     {ignore.length > 0 ? "Next" : "Run"}
                 </Button>
