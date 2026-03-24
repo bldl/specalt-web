@@ -57,7 +57,13 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
     );
 
     const input = useMemo(() => makeInput(lab.last!, weights), [lab, weights]);
-    useEffect(() => updateInput(input), [input]);
+    const [ignore, setIgnore] = useState<string[]>([]);
+
+    useEffect(() =>
+    {
+        setIgnore([]);
+        updateInput(input);
+    }, [input]);
 
     const update = (name: string, value: number) =>
     {
@@ -79,34 +85,37 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             withCloseButton: false,
         });
 
-        const { success, message } = await solveTweakables(lab.last!, input);
-
+        const solution = await solveTweakables(lab.last!, input, ignore);
         notifications.hide(id);
 
-        if (success)
+        if (!solution.success)
         {
-            notifications.show({
+            console.error("Solver failed with", solution.message);
+
+            setIgnore([]);
+
+            return notifications.show({
                 withBorder: true,
                 position: "top-right",
-                color: "green",
-                title: "Success!",
-                icon: <IconCheck size={16} />,
-                message: "The tweakables have been updated",
+                color: "red",
+                title: "Oh no!",
+                icon: <IconBug size={16} />,
+                message: `The solver failed with: ${solution.message}`,
             });
-
-            return redraw?.();
         }
-
-        console.error("Solver failed with", message);
 
         notifications.show({
             withBorder: true,
             position: "top-right",
-            color: "red",
-            title: "Oh no!",
-            icon: <IconBug size={16} />,
-            message: `The solver failed with: ${message}`,
+            color: "green",
+            title: "Success!",
+            icon: <IconCheck size={16} />,
+            message: "The tweakables have been updated",
         });
+
+        setIgnore([...ignore, ...solution.next]);
+
+        redraw?.();
     };
 
     return (
@@ -155,7 +164,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
             <Group justify="flex-end">
                 <Button leftSection={<IconSend2 size={16} />} onClick={solve}>
-                    Run
+                    {ignore.length > 0 ? "Next" : "Run"}
                 </Button>
             </Group>
         </Stack>

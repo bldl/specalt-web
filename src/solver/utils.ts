@@ -206,18 +206,27 @@ export function makeInput(laboratory: Laboratory, weights: Map<string, number>)
 
 const solverPromise = loadSolver();
 
-export interface Solution
-{
-    success: boolean;
-    message?: string;
-}
+export type Solution =
+    | {
+        success: false;
+        message: string;
+    }
+    | {
+        success: true;
+        next: string[];
+    };
 
-export async function solveTweakables(lab: Laboratory, input: Input): Promise<Solution>
+export async function solveTweakables(lab: Laboratory, input: Input, additional?: string[]): Promise<Solution>
 {
     const solver = await solverPromise;
     const constraints = new solver.VecString();
 
     for (const constraint of input.input.constraints)
+    {
+        constraints.push_back(constraint);
+    }
+
+    for (const constraint of additional ?? [])
     {
         constraints.push_back(constraint);
     }
@@ -241,6 +250,7 @@ export async function solveTweakables(lab: Laboratory, input: Input): Promise<So
     }
 
     const keys = solution.variables.keys();
+    const next = [] as string[];
 
     for (let i = 0; keys.size() > i; ++i)
     {
@@ -263,10 +273,16 @@ export async function solveTweakables(lab: Laboratory, input: Input): Promise<So
         )!;
 
         const value = mapping.entries().find(x => x[1] === key)![0];
-        const tweak = lab.tweakables.find(x => x.name === tweakable)!;
+        const tweak = lab.tweakables.find(x => x.name === tweakable);
+
+        if (!tweak)
+        {
+            continue;
+        }
 
         tweak.update(value);
+        next.push(`${key} == ${variable ? "0" : "1"}`);
     }
 
-    return { success: true };
+    return { success: true, next };
 }
