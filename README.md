@@ -21,8 +21,8 @@
 
 ## 🔍 What is it?
 
-SpecAlt is an interactive decision tool that allows do model a given problem with a custom DSL to then explore possible feature combinations and the issues that arise from them.
-The tool also offers an optimizer that calculates optimal (as in least issues caused) solutions based on a user-provided weight distrubtion.
+SpecAlt is an interactive decision tool that allows to model a given problem with a custom DSL to then explore possible feature combinations and the issues that arise from them.
+The tool also offers an optimizer that calculates optimal (as in least issues caused) solutions based on user-provided weights.
 
 ## ✏️ Syntax
 
