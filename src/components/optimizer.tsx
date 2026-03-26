@@ -132,7 +132,7 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             </Title>
 
             <Text ta="center" c="dimmed">
-                Using higher weights will prefer the given setting more
+                Using higher values will make the issue more severe.
             </Text>
 
             <ScrollArea w="100%">
