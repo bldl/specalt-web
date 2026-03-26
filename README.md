@@ -33,7 +33,7 @@ The tool also offers an optimizer that calculates optimal (as in least issues ca
 
 ## 📄 About
 
-This tool started as a Research Project lead by [Mikhail Barash](https://github.com/mikbar-uib).  
+This tool started as a Research Project lead by [Mikhail Barash](https://github.com/mikbar-uib).
 You can find the research paper here: ["Optimal Language Design is Hard: A Case Study in ECMAScript (JavaScript) Standardization"](https://dl.acm.org/doi/10.1145/3732771.3742715)
 
 The initial version of this tool was called "JSPL" and was published to the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=PhilippRiemer.jspl-javascript-propositional-laboratory)
