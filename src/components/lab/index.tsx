@@ -32,7 +32,7 @@ export function Lab({ lab, redraw, drawId, ...props }: LabProps)
         <Stack align="center" {...props}>
             {!lab.success && <Error kind="outdated" />}
 
-            {title && <Title>{title}</Title>}
+            {title && <Title ta="center">{title}</Title>}
 
             <Group wrap="nowrap">
                 {authors?.map(author => (

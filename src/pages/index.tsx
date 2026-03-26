@@ -3,6 +3,7 @@ import { useClipboard, useDebouncedCallback, useDisclosure } from "@mantine/hook
 import {
     ActionIcon,
     AppShell,
+    Burger,
     Button,
     Center,
     Group,
@@ -88,6 +89,29 @@ function Main({ tab, lab, lastDraft, updateLab }: MainProps)
 const mutex = new Mutex();
 const setLocalStorage = fromThrowable((key: string, value: string) => localStorage.setItem(key, value), e => e);
 
+const tabs = [
+    {
+        value: "preview",
+        text: "Preview",
+        icon: <IconEye size={16} />,
+    },
+    {
+        value: "editor",
+        text: "Edit",
+        icon: <IconCode size={16} />,
+    },
+    {
+        value: "optimize",
+        text: "Optimize",
+        icon: <IconBrain size={16} />,
+    },
+    {
+        value: "debug",
+        text: "Debug",
+        icon: <IconBug size={16} />,
+    },
+] as const;
+
 export interface ParsedLab
 {
     last?: Laboratory;
@@ -99,6 +123,7 @@ export function Root()
     const { url: searchUrl } = currentSearch();
     const clipboard = useClipboard();
 
+    const [navbar, { toggle: toggleNavbar }] = useDisclosure(false);
     const [aboutOpened, { open: openAbout, close: closeAbout }] = useDisclosure(false);
 
     const [share, setShare] = useState("");
@@ -180,7 +205,15 @@ export function Root()
     }, [tab]);
 
     return (
-        <AppShell padding="md" header={{ height: 60 }}>
+        <AppShell
+            padding="md"
+            header={{ height: 60 }}
+            navbar={{
+                width: 300,
+                breakpoint: "sm",
+                collapsed: { mobile: !navbar, desktop: !navbar },
+            }}
+        >
             <Modal title={<Title order={4}>About</Title>} opened={aboutOpened} onClose={closeAbout} centered>
                 <Stack>
                     <Text>
@@ -239,56 +272,34 @@ export function Root()
             </Modal>
             <AppShell.Header>
                 <Group wrap="nowrap" h="100%" px="md" className="header">
-                    <Group wrap="nowrap" gap="xs" style={{ flexGrow: 1, flexBasis: 0 }}>
+                    <Group visibleFrom="sm" wrap="nowrap" gap="xs" style={{ flexGrow: 1, flexBasis: 0 }}>
                         <IconTestPipe />
                         <Text fw="bolOptimizeder">
                             SpecAlt
                         </Text>
                     </Group>
+                    <Burger
+                        opened={navbar}
+                        onClick={toggleNavbar}
+                        hiddenFrom="sm"
+                        size="sm"
+                    />
                     <SegmentedControl
+                        visibleFrom="sm"
                         withItemsBorders={false}
-                        data={[
-                            {
-                                value: "preview",
-                                label: (
-                                    <Center style={{ gap: 10 }}>
-                                        <IconEye size={16} />
-                                        <span>Preview</span>
-                                    </Center>
-                                ),
-                            },
-                            {
-                                value: "editor",
-                                label: (
-                                    <Center style={{ gap: 10 }}>
-                                        <IconCode size={16} />
-                                        <span>Edit</span>
-                                    </Center>
-                                ),
-                            },
-                            {
-                                value: "optimize",
-                                label: (
-                                    <Center style={{ gap: 10 }}>
-                                        <IconBrain size={16} />
-                                        <span>Optimize</span>
-                                    </Center>
-                                ),
-                            },
-                            {
-                                value: "debug",
-                                label: (
-                                    <Center style={{ gap: 10 }}>
-                                        <IconBug size={16} />
-                                        <span>Debug</span>
-                                    </Center>
-                                ),
-                            },
-                        ]}
+                        data={tabs.map(tab => ({
+                            value: tab.value,
+                            label: (
+                                <Center style={{ gap: 10 }}>
+                                    {tab.icon}
+                                    <span>{tab.text}</span>
+                                </Center>
+                            ),
+                        }))}
                         value={tab}
                         onChange={value => setTab(value as Tab)}
                     />
-                    <Group justify="flex-end" style={{ flexGrow: 1, flexBasis: 0 }}>
+                    <Group wrap="nowrap" justify="flex-end" style={{ flexGrow: 1, flexBasis: 0 }}>
                         <ActionIcon
                             color="blue"
                             onClick={openAbout}
@@ -314,6 +325,23 @@ export function Root()
                     </Group>
                 </Group>
             </AppShell.Header>
+            <AppShell.Navbar>
+                {tabs.map(tab => (
+                    <Button
+                        variant="subtle"
+                        m="sm"
+                        leftSection={tab.icon}
+                        justify="start"
+                        onClick={() =>
+                        {
+                            toggleNavbar();
+                            setTab(tab.value);
+                        }}
+                    >
+                        {tab.text}
+                    </Button>
+                ))}
+            </AppShell.Navbar>
             <AppShell.Main className="main">
                 {lastDraft !== undefined && (
                     <Main
