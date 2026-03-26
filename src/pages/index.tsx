@@ -96,7 +96,7 @@ export interface ParsedLab
 
 export function Root()
 {
-    const search = currentSearch();
+    const { url: searchUrl } = currentSearch();
     const clipboard = useClipboard();
 
     const [aboutOpened, { open: openAbout, close: closeAbout }] = useDisclosure(false);
@@ -150,9 +150,9 @@ export function Root()
 
     useEffect(() =>
     {
-        if (search.url)
+        if (searchUrl)
         {
-            fetch(search.url).then(result => result.text())
+            fetch(searchUrl).then(result => result.text())
                 .then(loadCode)
                 .catch(() =>
                 {
@@ -315,7 +315,7 @@ export function Root()
                 </Group>
             </AppShell.Header>
             <AppShell.Main className="main">
-                {lastDraft && (
+                {lastDraft !== undefined && (
                     <Main
                         tab={tab}
                         lab={lab}

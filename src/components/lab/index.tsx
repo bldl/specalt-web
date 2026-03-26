@@ -1,5 +1,4 @@
 import Markdown from "../markdown";
-
 import { Badge, Group, rem, ScrollArea, Stack, StackProps, Title } from "@mantine/core";
 
 import { Item } from "./item";
@@ -24,7 +23,10 @@ export function Lab({ lab, redraw, drawId, ...props }: LabProps)
     const { title, authors, description, tweakables, givens, propositions } = lab.last;
     const concerns = evaluate(propositions.flatMap(prop => prop.concerns()));
 
-    console.log(concerns);
+    if (!propositions.length)
+    {
+        return <Error kind="empty" {...props} />;
+    }
 
     return (
         <Stack align="center" {...props}>

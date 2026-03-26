@@ -44,11 +44,11 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
         return <Error kind="missing" {...props} />;
     }
 
-    const current = currentSearch();
+    const { weights: searchWeights } = currentSearch();
 
     const [weights, setWeights] = useState(
-        allowedWeights(lab.last, current.weights)
-            ? new Map(Object.entries(current.weights))
+        allowedWeights(lab.last, searchWeights)
+            ? new Map(Object.entries(searchWeights ?? []))
             : new Map(
                 lab.last.concerns.values().map(
                     concern => [concern.name, 1 as number] as const,
@@ -85,7 +85,6 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
             withCloseButton: false,
         });
 
-        console.log(ignore);
         const solution = await solveTweakables(lab.last!, input, ignore);
         notifications.hide(id);
 
@@ -118,6 +117,11 @@ export function Optimizer({ lab, redraw, updateInput, ...props }: OptimizerProps
 
         redraw?.();
     };
+
+    if (!input.input.constraints.length)
+    {
+        return <Error kind="empty" {...props} />;
+    }
 
     return (
         <Stack {...props}>
