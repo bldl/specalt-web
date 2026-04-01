@@ -1,0 +1,72 @@
+// A __fictional__ CSS feature `layout-snap` to control
+// how elements inside a container align/snap into position.
+
+// We need to decide:
+// - does snapping happen automatically (`auto`) or only when explicitly triggered (`manual`)
+// - how it behaves when content overflows (`clip` / `scroll`)
+// - whether the movement is instant (`discrete`) or animated (`smooth`)
+
+// Decision points ("tweakables"):
+// - activation mode: `auto` / `manual`
+// - overflow behaviour: `clip` / `scroll`
+// - animation mode: `discrete` / `smooth`
+
+// Dependencies between tweakables: see slides 7 and 8 of  https://docs.google.com/presentation/d/1u2EgJdNL_-63zsw-HY4wClHykNMHs5fkewdtj6HNGSQ/edit?usp=sharing
+
+
+laboratory {
+    title "CSS-related fictional example"
+    description "description text"
+    author "author"
+    version "1"
+}
+
+issue implementationComplexity {
+  summary "implementation complexity"
+  description "Automatic layout adjustment increases implementation complexity."
+}
+
+issue authorConfusion {
+  summary "author confusion"
+  description "Interactions between automatic snapping and overflow behaviour may be harder for authors to predict."
+}
+
+issue motionConcern {
+  summary "motion concern"
+  description "Smooth automatic movement may be undesirable for some users and harder to reason about."
+}
+
+issue performanceCost {
+  summary "performance cost"
+  description "Continuous or animated layout adjustment may have a runtime cost."
+}
+
+tweakable activationMode {
+  expression "activation mode"
+  default value "manual" {}
+  value "auto" {
+    raise implementationComplexity
+  }
+}
+
+tweakable overflowBehaviour {
+  expression "overflow behaviour"
+  default value "clip" {}
+  value "scroll" {
+    raise authorConfusion when activationMode is "auto"
+  }
+}
+
+tweakable animationMode {
+  expression "animation mode"
+  default value "discrete" {}
+  value "smooth" {
+    raise motionConcern
+    raise performanceCost when activationMode is "auto"
+    raise authorConfusion when overflowBehaviour is "scroll"
+  }
+  disabled {
+    message "Animation mode is only relevant when layout-snap is automatic."
+    when activationMode is "manual"
+  }
+}
